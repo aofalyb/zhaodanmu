@@ -10,6 +10,7 @@
     <version>1.0.0</version>
     <modules>
         <module>zhaodanmu-core</module>
+        <module>zhaodanmu-douyu-server</module>
     </modules>
 
     <properties>
