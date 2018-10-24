@@ -11,17 +11,21 @@ import java.util.Date;
 
 public abstract class Connection {
 
-    public static final int HEARTBEAT_TIMEOUT = 30;
+    public static final int HEARTBEAT_TIMEOUT = 15;
     private Channel channel;
     public volatile long lastReadTime;
     public volatile ConnectionState state = ConnectionState.NEW;
     //room id,primary key
     private String rid;
 
-    public Connection(Channel channel,String rid) {
-        this.channel = channel;
+    public Connection(String rid) {
         this.rid = rid;
+    }
+
+    public void init(Channel channel) {
+        this.channel = channel;
         lastReadTime = System.currentTimeMillis();
+        state = ConnectionState.ACTIVE;
     }
 
 
@@ -30,9 +34,12 @@ public abstract class Connection {
     }
 
     public ChannelFuture close() {
-        Log.defLogger.info("connection: {} close now...",this);
+        Log.defLogger.info("closing conn: {}",this);
         state = ConnectionState.CLOSED;
-       return channel.close();
+        if(channel.isActive()) {
+            return channel.close();
+        }
+       return null;
     }
 
     /**
@@ -43,7 +50,7 @@ public abstract class Connection {
 
     public ChannelFuture send(Packet packet) {
         if(!isConnected()) {
-            throw new NettyClientRuntimeException("can't send any data before connected");
+            throw new NettyClientRuntimeException("can't send any data before connection connected");
         }
         if(channel.isActive()) {
             ChannelFuture future = channel.writeAndFlush(packet);

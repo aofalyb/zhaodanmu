@@ -1,7 +1,7 @@
 package com.zhaodanmu.douyu.server.elastic;
 
 
-import com.barrage.common.Log;
+import com.zhaodanmu.core.common.Log;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
@@ -79,19 +79,19 @@ public class EsClient {
 
         IndicesExistsResponse existsResponse = client.admin().indices().prepareExists(INDEX_NAME).execute().actionGet();
 
-        Log.errorLogger.error("existsResponse="+existsResponse.isExists());
+        Log.defLogger.error("existsResponse="+existsResponse.isExists());
         if(!existsResponse.isExists()) {
             //创建
 
             CreateIndexResponse indexResponse = client.admin().indices().prepareCreate(INDEX_NAME).execute().actionGet();
-            Log.errorLogger.error("indexResponse"+indexResponse.isAcknowledged());
+            Log.defLogger.error("indexResponse"+indexResponse.isAcknowledged());
 
         }
 
         //索引字段
 
         TypesExistsResponse typesResponse = client.admin().indices().prepareTypesExists(INDEX_NAME).setTypes(TYPE_NAME).execute().actionGet();
-        Log.errorLogger.error("TypesExistsResponse="+typesResponse.isExists());
+        Log.defLogger.error("TypesExistsResponse="+typesResponse.isExists());
         if(!typesResponse.isExists()) {
 
             XContentBuilder mapping = XContentFactory.jsonBuilder().startObject().startObject("properties")
@@ -102,7 +102,7 @@ public class EsClient {
 
             PutMappingRequest mappingRequest = Requests.putMappingRequest(INDEX_NAME).type(TYPE_NAME).source(mapping);
 
-            Log.errorLogger.error("mapping="+client.admin().indices().putMapping(mappingRequest).actionGet().isAcknowledged());
+            Log.defLogger.error("mapping="+client.admin().indices().putMapping(mappingRequest).actionGet().isAcknowledged());
 
         }
         start = true;
@@ -173,13 +173,13 @@ public class EsClient {
                             Iterator<BulkItemResponse> iterator = bulkResponse.iterator();
                             while (iterator.hasNext()) {
                                 BulkItemResponse bulkItemResponse = iterator.next();
-                                Log.errorLogger.error("#["+System.currentTimeMillis()+"]"+"["+bulkItemResponse+"]");
+                                Log.defLogger.error("#["+System.currentTimeMillis()+"]"+"["+bulkItemResponse+"]");
                             }
 
                         }
                 }
             } catch (InterruptedException e) {
-                Log.errorLogger.error("waitCheckQueue take error.",e);
+                Log.defLogger.error("waitCheckQueue take error.",e);
             }
 
         }

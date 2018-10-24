@@ -1,6 +1,7 @@
 package com.zhaodanmu.core.netty;
 
 import com.zhaodanmu.core.common.NamedPoolThreadFactory;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelId;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -27,6 +28,15 @@ public class ClientConnectionManager implements ConnectionManager {
     public void put(Connection connection) {
         connections.put(connection.getChannel().id(),connection);
         wheelTimer.newTimeout(new HeartBeatTask(connection),Connection.HEARTBEAT_TIMEOUT,TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void removeAndClose(Channel channel) {
+        Connection connection = connections.remove(channel.id());
+        if(connection != null) {
+            connection.state = ConnectionState.CLOSED;
+            connection.close();
+        }
     }
 
     @Override

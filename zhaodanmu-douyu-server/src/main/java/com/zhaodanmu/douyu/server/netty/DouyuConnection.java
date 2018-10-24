@@ -5,8 +5,8 @@ import io.netty.channel.Channel;
 
 public class DouyuConnection extends Connection {
 
-    public DouyuConnection(Channel channel, String rid) {
-        super(channel, rid);
+    public DouyuConnection(String rid) {
+        super(rid);
     }
 
     @Override

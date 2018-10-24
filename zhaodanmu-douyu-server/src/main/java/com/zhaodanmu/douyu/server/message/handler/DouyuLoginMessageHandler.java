@@ -4,7 +4,7 @@ package com.zhaodanmu.douyu.server.message.handler;
 import com.zhaodanmu.core.common.Log;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.core.netty.ConnectionState;
-import com.zhaodanmu.douyu.server.message.DouyuJoinGroupMessage;
+import com.zhaodanmu.douyu.server.message.DouyuJoinGroupReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
 
 import java.util.Objects;
@@ -16,7 +16,7 @@ public class DouyuLoginMessageHandler implements IMessageHandler<DouyuMessage> {
     public boolean handle(Connection connection, DouyuMessage message) {
 
         if(Objects.equals(message.getMessageType(),"loginres")) {
-            //login success , join group
+            //login success then join group
             joinGroup(connection);
         }
         return false;
@@ -25,7 +25,7 @@ public class DouyuLoginMessageHandler implements IMessageHandler<DouyuMessage> {
 
 
     private void joinGroup(Connection connection) {
-        new DouyuJoinGroupMessage(null,connection)
+        new DouyuJoinGroupReqMessage(connection)
                 .send()
                 .addListener((future -> {
                     if(future.isSuccess()) {

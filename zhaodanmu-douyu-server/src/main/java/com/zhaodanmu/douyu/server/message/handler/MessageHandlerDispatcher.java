@@ -36,21 +36,19 @@ public class MessageHandlerDispatcher {
 
 
     public IMessageHandler getHandler(String key) {
-        IMessageHandler iMessageHandler = handlerMap.get(key);
-        if(iMessageHandler == null) {
-            return handlerMap.get("def");
-        }
-
-        return iMessageHandler;
+        return handlerMap.get(key);
     }
 
+    public IMessageHandler getDefaultHandler() {
+        return getHandler("def");
+    }
 
     public boolean dispatch(Message message) {
         Message decodeMessage = message.decode();
 
         IMessageHandler handler = getHandler(decodeMessage.getMessageType());
         if(handler == null) {
-            throw new MessageHandleRuntimeException("can`t find any handler match key "+message.getMessageType()+".");
+            handler = getDefaultHandler();
         }
         //TODO 这里需要细化到具体的message类型
 

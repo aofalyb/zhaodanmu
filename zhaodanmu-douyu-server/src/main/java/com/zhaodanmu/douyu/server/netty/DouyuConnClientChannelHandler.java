@@ -1,10 +1,8 @@
 package com.zhaodanmu.douyu.server.netty;
 
 import com.zhaodanmu.core.common.Log;
-import com.zhaodanmu.core.netty.Connection;
-import com.zhaodanmu.core.netty.ConnectionState;
-import com.zhaodanmu.core.netty.NettyClientException;
-import com.zhaodanmu.douyu.server.message.DouyuLoginMessage;
+import com.zhaodanmu.core.netty.*;
+import com.zhaodanmu.douyu.server.message.DouyuLoginReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
 import com.zhaodanmu.douyu.server.message.handler.DouyuDefaultMessageHandler;
 import com.zhaodanmu.douyu.server.message.handler.DouyuLoginMessageHandler;
@@ -23,14 +21,14 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
 
     private Connection connection;
     public String rid;
-
     private MessageHandlerDispatcher messageHandlerDispatcher;
 
+    private ConnectionManager connectionManager;
 
     public DouyuConnClientChannelHandler(String rid) {
         this.rid = rid;
+        connectionManager = new ClientConnectionManager();
     }
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
@@ -44,52 +42,45 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 
-        if(connection == null) {
-            connection = new DouyuConnection(ctx.channel(), rid);
-        }
+        connection = new DouyuConnection(rid);
+        connection.init(ctx.channel());
+        connectionManager.put(connection);
         //init handler
         messageHandlerDispatcher = new MessageHandlerDispatcher(connection);
         messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMessageHandler());
         messageHandlerDispatcher.register("def",new DouyuDefaultMessageHandler());
-
-
-        doLogin(connection);
-
+        tryLogin(connection);
     }
-
-    //登录弹幕服务器
-    private void doLogin(Connection connection) {
-        new DouyuLoginMessage(null,connection)
-                .send()
-                .addListener((future -> {
-                    if(future.isSuccess()) {
-                        //connection.refreshState(Connection.ConnectionState.LOGIN_PRE);
-                        Log.defLogger.info("trying login douyu-chat room:{}.",connection.getRid());
-                    } else {
-                        throw new NettyClientException("send login req fail,exp:{}.",future.cause());
-                    }
-                }));
-    }
-
-
-
 
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        connection.state = ConnectionState.DISCONNECTED;
-        Log.defLogger.error("disconnect from douyu-room:{}. try reconnect...", rid);
-        Log.defLogger.error("ctx : {} ",ctx);
-        //TODO 【断线重连】
-//        NettyClient nettyClient = ClientManager.get(rid);
-//        nettyClient.reLogin(connection);
+        connectionManager.removeAndClose(ctx.channel());
+        Log.defLogger.error("disconnect from room:{}, try reconnect.", rid);
+        Log.defLogger.error("connection:{} ",connection);
 
 
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        Log.defLogger.error(ctx,cause);
-        //TODO 【断线重连】
+        Log.defLogger.error("connection: {}",connection,cause);
+        //connectionManager.removeAndClose(ctx.channel());
+
+    }
+
+
+    //登录弹幕服务器
+    private void tryLogin(Connection connection) {
+        new DouyuLoginReqMessage(connection)
+                .send()
+                .addListener((future -> {
+                    if(future.isSuccess()) {
+                        //connection.refreshState(Connection.ConnectionState.LOGIN_PRE);
+                        Log.defLogger.info("trying login chat room:{}.",connection.getRid());
+                    } else {
+                        throw new NettyClientException("send login req fail,exp:{}.",future.cause());
+                    }
+                }));
     }
 }
