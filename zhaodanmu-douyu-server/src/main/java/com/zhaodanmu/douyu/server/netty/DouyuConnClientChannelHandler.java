@@ -1,12 +1,14 @@
 package com.zhaodanmu.douyu.server.netty;
 
 import com.zhaodanmu.core.common.Log;
+import com.zhaodanmu.core.event.ConnectEvent;
+import com.zhaodanmu.core.event.EventBus;
 import com.zhaodanmu.core.netty.*;
 import com.zhaodanmu.douyu.server.message.DouyuLoginReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
 import com.zhaodanmu.douyu.server.message.handler.DouyuDefaultMessageHandler;
 import com.zhaodanmu.douyu.server.message.handler.DouyuLoginMessageHandler;
-import com.zhaodanmu.douyu.server.message.handler.MessageHandlerDispatcher;
+import com.zhaodanmu.core.message.handler.MessageHandlerDispatcher;
 import com.zhaodanmu.douyu.server.protocol.DouyuPacket;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,7 +18,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 /**
  * 430489 276685 606118 99999 520 88188 5221750 911 71017 688
  */
-@ChannelHandler.Sharable
 public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter {
 
     private Connection connection;
@@ -44,7 +45,9 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
 
         connection = new DouyuConnection(rid);
         connection.init(ctx.channel());
+        connectionManager.init();
         connectionManager.put(connection);
+
         //init handler
         messageHandlerDispatcher = new MessageHandlerDispatcher(connection);
         messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMessageHandler());
@@ -56,16 +59,14 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         connectionManager.removeAndClose(ctx.channel());
-        Log.defLogger.error("disconnect from room:{}, try reconnect.", rid);
+        Log.defLogger.error("channel is inactive now, try reconnect.");
         Log.defLogger.error("connection:{} ",connection);
-
 
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        Log.defLogger.error("connection: {}",connection,cause);
-        //connectionManager.removeAndClose(ctx.channel());
+        Log.defLogger.error("exception caught! connection: {}",connection,cause);
 
     }
 

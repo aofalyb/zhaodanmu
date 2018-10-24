@@ -1,8 +1,8 @@
-package com.zhaodanmu.douyu.server.message.handler;
+package com.zhaodanmu.core.message.handler;
 
 
 import com.zhaodanmu.core.netty.Connection;
-import com.zhaodanmu.douyu.server.message.Message;
+import com.zhaodanmu.core.message.Message;
 
 public interface IMessageHandler<T extends Message> {
 

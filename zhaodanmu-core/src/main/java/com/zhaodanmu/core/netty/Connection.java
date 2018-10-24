@@ -50,7 +50,8 @@ public abstract class Connection {
 
     public ChannelFuture send(Packet packet) {
         if(!isConnected()) {
-            throw new NettyClientRuntimeException("can't send any data before connection connected");
+            //TODO 【需要做限制吗？】
+            //throw new NettyClientRuntimeException("can't send any data before connection connected");
         }
         if(channel.isActive()) {
             ChannelFuture future = channel.writeAndFlush(packet);

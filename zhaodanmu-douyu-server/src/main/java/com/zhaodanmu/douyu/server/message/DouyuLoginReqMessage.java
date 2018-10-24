@@ -2,6 +2,7 @@ package com.zhaodanmu.douyu.server.message;
 
 
 import com.zhaodanmu.core.netty.Connection;
+import com.zhaodanmu.core.protocol.Packet;
 import com.zhaodanmu.douyu.server.protocol.DouyuPacket;
 import com.zhaodanmu.douyu.server.util.DouyuPacketBuilder;
 
@@ -10,16 +11,17 @@ import com.zhaodanmu.douyu.server.util.DouyuPacketBuilder;
  */
 public class DouyuLoginReqMessage extends DouyuMessage {
 
-    public static final int LOGIN_TIME_OUT = 5 * 1000;
-    private final String loginReq;
+    public static final int LOGIN_TIME_OUT = 1 * 1000;
     public DouyuLoginReqMessage(Connection connection) {
-        super(connection);
-        loginReq = "type@=loginreq/roomid@=" + connection.getRid() + "/";
-        packet = new DouyuPacket(loginReq.getBytes());
+        super(new DouyuPacket(("type@=loginreq/roomid@=" + connection.getRid() + "/").getBytes()),connection);
+    }
+
+    public DouyuLoginReqMessage(DouyuPacket packet,Connection connection) {
+        super(packet,connection);
     }
 
     @Override
-    public void encode() {
+    public void encodeBody() {
         //packet = DouyuPacketBuilder.build(DouyuPacket.PACKET_TYPE_LOGIN, connection.getRid());
     }
 

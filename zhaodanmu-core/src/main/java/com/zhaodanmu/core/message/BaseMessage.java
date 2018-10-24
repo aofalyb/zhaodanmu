@@ -1,4 +1,4 @@
-package com.zhaodanmu.douyu.server.message;
+package com.zhaodanmu.core.message;
 
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.core.protocol.Packet;
@@ -8,26 +8,27 @@ import io.netty.channel.ChannelFuture;
 public abstract class BaseMessage implements Message {
 
     protected Packet packet;
-
     protected Connection connection;
 
-    public BaseMessage(Connection connection) {
-        this.connection = connection;
-    }
 
     public BaseMessage(Packet packet, Connection connection) {
         this.packet = packet;
         this.connection = connection;
     }
 
-    public void setPacket(Packet packet) {
-        this.packet = packet;
+    @Override
+    public Packet getPacket() {
+        return packet;
+    }
+
+    @Override
+    public Connection getConnection() {
+        return connection;
     }
 
     @Override
     public ChannelFuture send() {
-        encode();
-
+        encodeBody();
         return connection.send(packet);
     }
 }

@@ -9,7 +9,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 
-@ChannelHandler.Sharable
 public final class DouyuPacketEncoder extends MessageToByteEncoder<DouyuPacket> {
 
     @Override

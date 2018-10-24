@@ -1,8 +1,9 @@
-package com.zhaodanmu.douyu.server.message.handler;
+package com.zhaodanmu.core.message.handler;
 
 
+import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
-import com.zhaodanmu.douyu.server.message.Message;
+import com.zhaodanmu.core.message.Message;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,15 +45,13 @@ public class MessageHandlerDispatcher {
     }
 
     public boolean dispatch(Message message) {
-        Message decodeMessage = message.decode();
+        Message decodeMessage = message.decodeBody();
 
         IMessageHandler handler = getHandler(decodeMessage.getMessageType());
         if(handler == null) {
             handler = getDefaultHandler();
         }
         //TODO 这里需要细化到具体的message类型
-
-
 
         return handler.handle(connection,decodeMessage);
     }

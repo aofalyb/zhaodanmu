@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import java.net.InetSocketAddress;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public abstract class NettyClient {
@@ -94,12 +95,13 @@ public abstract class NettyClient {
 
     public abstract ChannelHandler getChannelHandler();
 
-    protected void doStart(Listener listener) throws Throwable {
+    protected boolean doStart(Listener listener) {
         if (false) {
             createEpollClient(listener);
         } else {
             createNioClient(listener);
         }
+        return false;
     }
 
     protected void doStop(Listener listener) throws Throwable {

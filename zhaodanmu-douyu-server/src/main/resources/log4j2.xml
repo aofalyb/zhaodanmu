@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <properties>
+
+        <!-- 是否打印所在的行号(对性能影响比较大) -->
+        <property name="enable_log_location">false</property>
+        <!-- 应用名 -->
+        <property name="logstack.application.name">danmu</property>
+        <property name="logstack.client.id">douyu</property>
+        <property name="vmid">douyu_danmu-server</property>
+        <!-- 日志输出目录 -->
+        <property name="LOG_HOME">logs/${logstack.client.id}</property>
+    </properties>
+
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%msg%n" />
+        </Console>
+
+        <RollingRandomAccessFile name="defFile" fileName="${LOG_HOME}/${logstack.application.name}.log" filePattern="${LOG_HOME}/%d{yyyy-MM-dd-HH}.log">
+            <PatternLayout pattern="%msg%n" charset="utf-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+            <DefaultRolloverStrategy max="31"/>
+        </RollingRandomAccessFile>
+
+        <Async name="defAppender">
+            <AppenderRef ref="defFile"/>
+        </Async>
+
+
+    </Appenders>
+
+    <Loggers>
+        <Logger name="defLogger" level="info" additivity="false">
+            <AppenderRef ref="defAppender" />
+            <AppenderRef ref="Console" />
+        </Logger>
+
+    </Loggers>
+</Configuration>

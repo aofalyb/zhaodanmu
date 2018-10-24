@@ -2,10 +2,14 @@ package com.zhaodanmu.douyu.server.message.handler;
 
 
 import com.zhaodanmu.core.common.Log;
+import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.core.netty.ConnectionState;
+import com.zhaodanmu.core.netty.NettyClient;
+import com.zhaodanmu.douyu.server.DouyuCrawlerClient;
 import com.zhaodanmu.douyu.server.message.DouyuJoinGroupReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
+import com.zhaodanmu.douyu.server.util.ClientHolder;
 
 import java.util.Objects;
 
@@ -30,7 +34,9 @@ public class DouyuLoginMessageHandler implements IMessageHandler<DouyuMessage> {
                 .addListener((future -> {
                     if(future.isSuccess()) {
                         connection.state = ConnectionState.CONNECTED;
-                        Log.defLogger.info("login douyu-chat room:{} success.",connection.getRid());
+                        Log.defLogger.info("login douyu-chat room: {} success.",connection.getRid());
+                        DouyuCrawlerClient nettyClient = (DouyuCrawlerClient) ClientHolder.get();
+                        nettyClient.release();
 //                        connection.hearBeat();
 //                        DouyuNettyClient.notifyLoginSuccess();
                     } else {

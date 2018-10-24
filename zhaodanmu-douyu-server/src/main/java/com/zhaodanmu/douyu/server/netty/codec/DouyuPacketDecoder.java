@@ -10,7 +10,6 @@ import io.netty.handler.codec.TooLongFrameException;
 import java.util.List;
 
 
-@ChannelHandler.Sharable
 public final class DouyuPacketDecoder extends ByteToMessageDecoder {
     private static final int maxPacketSize = 100 * 1024;
 

@@ -5,19 +5,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author liyang
- * @description:把Map转化为，斗鱼自创序列化、反序列化算法。
- * 即STT序列化。《斗鱼弹幕服务器第三方接入协议v1.6.2》#2.2序列化
- * @date 2018/3/19
- */
+
 public class DouyuSerializeUtil {
 
-    /**
-     * 斗鱼自创协议转换为map数据结构
-     * @param serializedString
-     * @return
-     */
     public static Map unSerialize(String serializedString){
         Map attrs = new HashMap();
         String[] strings = serializedString.split("@=");
