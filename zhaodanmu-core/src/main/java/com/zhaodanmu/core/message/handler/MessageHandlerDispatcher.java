@@ -1,12 +1,13 @@
 package com.zhaodanmu.core.message.handler;
 
 
-import com.zhaodanmu.core.message.handler.IMessageHandler;
+import com.zhaodanmu.core.common.Log;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.core.message.Message;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 消息处理器分发
@@ -16,8 +17,9 @@ public class MessageHandlerDispatcher {
     private static final String OR = "\\|";
     private Map<String,IMessageHandler> handlerMap;
 
+    private AtomicInteger totalDispatch = new AtomicInteger(0);
+    private long dispatchStartTime = -1L;
     private Connection connection;
-
 
     public MessageHandlerDispatcher(Connection connection) {
         handlerMap = new HashMap<>();
@@ -46,7 +48,7 @@ public class MessageHandlerDispatcher {
 
     public boolean dispatch(Message message) {
         Message decodeMessage = message.decodeBody();
-
+        echoTPS();
         IMessageHandler handler = getHandler(decodeMessage.getMessageType());
         if(handler == null) {
             handler = getDefaultHandler();
@@ -56,6 +58,20 @@ public class MessageHandlerDispatcher {
         return handler.handle(connection,decodeMessage);
     }
 
+    /**
+     * TPS
+     */
+    private void echoTPS() {
+        int totalDispatchInt = totalDispatch.incrementAndGet();
+        if(dispatchStartTime == -1L) {
+            dispatchStartTime = System.currentTimeMillis();
+        }
+        long nowTime = System.currentTimeMillis();
+        long secondPassed = (nowTime - dispatchStartTime) / 1000;
+        if(secondPassed >= 1) {
+            Log.defLogger.debug("conn-rid: {},tps: {}",connection.getRid(),totalDispatchInt / secondPassed);
+        }
+    }
 
 
 

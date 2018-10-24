@@ -3,18 +3,20 @@ package com.zhaodanmu.douyu.server;
 
 import com.zhaodanmu.core.common.Listener;
 import com.zhaodanmu.core.common.Log;
+import com.zhaodanmu.core.common.NamedPoolThreadFactory;
 import com.zhaodanmu.core.netty.*;
 import com.zhaodanmu.douyu.server.message.DouyuLoginReqMessage;
 import com.zhaodanmu.douyu.server.netty.DouyuConnClientChannelHandler;
 import com.zhaodanmu.douyu.server.netty.codec.DouyuPacketDecoder;
 import com.zhaodanmu.douyu.server.netty.codec.DouyuPacketEncoder;
-import com.zhaodanmu.douyu.server.util.ClientHolder;
+import com.zhaodanmu.core.util.ClientHolder;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -23,10 +25,18 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DouyuCrawlerClient extends NettyClient {
 
     private String rid;
-    private Thread reConnectThread;
-    private Connection connection;
     private Lock lock = new ReentrantLock();
     private Condition loginSuccessCondition = lock.newCondition();
+    private ConnectionManager connectionManager;
+    //断线重连次数
+    private AtomicInteger retryTimes = new AtomicInteger(0);
+
+    private AtomicBoolean retrying = new AtomicBoolean(false);
+
+    private static ThreadPoolExecutor reConnectThread = new ThreadPoolExecutor(1, 1,
+                                      0L, TimeUnit.MILLISECONDS,
+                                      new LinkedBlockingQueue<Runnable>());;
+
     private Listener defaultListener = new Listener() {
         @Override
         public void onSuccess(Object... args) {
@@ -41,7 +51,7 @@ public class DouyuCrawlerClient extends NettyClient {
 
     public DouyuCrawlerClient(String rid) {
         this.rid = rid;
-        ClientHolder.hold(this);
+        ClientHolder.hold(rid,this);
     }
 
     @Override
@@ -56,32 +66,35 @@ public class DouyuCrawlerClient extends NettyClient {
 
     @Override
     public ChannelHandler getChannelHandler() {
-        return new DouyuConnClientChannelHandler(rid);
+        return new DouyuConnClientChannelHandler(rid,connectionManager = new ClientConnectionManager());
     }
 
     @Override
     protected boolean doStart(Listener listener)  {
         super.doStart(listener);
         //异步转同步
-        boolean connect = false;
+        return connect();
+    }
+
+    private boolean connect() {
         try {
             lock.lock();
             ChannelFuture future = connect("openbarrage.douyutv.com", 8601);
             boolean timeOut = loginSuccessCondition.await(DouyuLoginReqMessage.LOGIN_TIME_OUT, TimeUnit.MILLISECONDS);
             if(!timeOut) {
                 Log.defLogger.error("connect rid:{} timeout.",rid);
+                future.channel().close();
             }
             return timeOut;
         } catch (Exception e) {
-            Log.defLogger.error("exception caught when rid:{} do start.",rid,e);
+            Log.defLogger.error("exception caught when rid:{} do doStart.",rid,e);
         } finally {
             lock.unlock();
         }
-        return connect;
+        return false;
     }
 
-
-    public boolean start() {
+    public boolean doStart() {
         return doStart(this.defaultListener);
     }
 
@@ -89,6 +102,7 @@ public class DouyuCrawlerClient extends NettyClient {
         lock.lock();
         try {
             loginSuccessCondition.signal();
+            retrying.set(false);
         } finally {
             lock.unlock();
         }
@@ -97,62 +111,36 @@ public class DouyuCrawlerClient extends NettyClient {
 
     @Override
     protected void doStop(Listener listener) throws Throwable {
-        //先关闭connection
-
-
         super.doStop(listener);
     }
 
-    public void reConnect(Connection connection) {
-        if(reConnectThread != null) return;
-
-        reConnectThread = new Thread(() -> {
-            int times = 0;
-            while (connection.getState() != ConnectionState.CONNECTED) {
-                Log.defLogger.error("reconnect rid={} , times = {}.",rid,++times);
-
-                ChannelFuture connect = connect("openbarrage.douyutv.com", 8601);
+    /**
+     * 断线重连
+     */
+    public void reConnect() {
+        if(!retrying.compareAndSet(false,true)) {
+            return;
+        }
+        reConnectThread.execute(() -> {
+            Log.defLogger.info("trying reconnect conn-rid={}.",rid);
+            while (!connect()) {
+                retryTimes.incrementAndGet();
+                Log.defLogger.info("trying reconnect conn-rid={}, retry times={}.",rid,retryTimes.get());
+                Log.defLogger.info("reconnect conn-rid={} time out,wait a second",rid);
                 try {
-                    connect.get(DouyuLoginReqMessage.LOGIN_TIME_OUT, TimeUnit.MILLISECONDS);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (TimeoutException e) {
-                    e.printStackTrace();
+
                 }
-                if(!connect.isSuccess()) {
-                    throw new NettyClientRuntimeException("connect fail ,rid="+rid);
-                }
-//                try {
-//                    //超时检查
-//                    if(!loginFuture.await(DouyuLoginReqMessage.LOGIN_TIME_OUT, TimeUnit.MILLISECONDS)) {
-//                        throw new NettyClientException("login time out ,rid="+rid);
-//                    }
-//
-//                } catch (Exception e) {
-//                   Log.defLogger.error("exception caught when doing re-connect",e);
-//                } finally {
-//                    try {
-//                        Thread.sleep(1000);
-//                    } catch (InterruptedException e) {
-//
-//                    }
-//                }
             }
-            Log.defLogger.error("reconnect douyu rid={} success, retry times = {}.",rid,times);
-
+            Log.defLogger.info("reconnect conn-rid={} success, retry times = {}.",rid,retryTimes.get());
         });
-        reConnectThread.setName("douyu-reconnect");
-        reConnectThread.start();
-
     }
+
 
     @Override
     public String toString() {
         return "DouyuCrawlerClient{" +
-                "rid='" + rid + '\'' +
-                ", connection=" + connection +
-                '}';
+                "rid='" + rid + "'}";
     }
 }

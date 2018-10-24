@@ -4,6 +4,8 @@ import com.zhaodanmu.core.common.Log;
 import com.zhaodanmu.core.event.ConnectEvent;
 import com.zhaodanmu.core.event.EventBus;
 import com.zhaodanmu.core.netty.*;
+import com.zhaodanmu.core.util.ClientHolder;
+import com.zhaodanmu.douyu.server.DouyuCrawlerClient;
 import com.zhaodanmu.douyu.server.message.DouyuLoginReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
 import com.zhaodanmu.douyu.server.message.handler.DouyuDefaultMessageHandler;
@@ -26,13 +28,12 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
 
     private ConnectionManager connectionManager;
 
-    public DouyuConnClientChannelHandler(String rid) {
+    public DouyuConnClientChannelHandler(String rid,ConnectionManager connectionManager) {
         this.rid = rid;
-        connectionManager = new ClientConnectionManager();
+        this.connectionManager = connectionManager;
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
         DouyuPacket packet = (DouyuPacket) msg;
         DouyuMessage douyuMessage = new DouyuMessage(packet,connection);
         messageHandlerDispatcher.dispatch(douyuMessage);
@@ -45,10 +46,12 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
 
         connection = new DouyuConnection(rid);
         connection.init(ctx.channel());
+        Log.defLogger.info("channel is active now, WELCOME.");
+
         connectionManager.init();
         connectionManager.put(connection);
 
-        //init handler
+        //doStart handler
         messageHandlerDispatcher = new MessageHandlerDispatcher(connection);
         messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMessageHandler());
         messageHandlerDispatcher.register("def",new DouyuDefaultMessageHandler());
@@ -58,10 +61,11 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        connectionManager.removeAndClose(ctx.channel());
-        Log.defLogger.error("channel is inactive now, try reconnect.");
-        Log.defLogger.error("connection:{} ",connection);
-
+        connectionManager.removeAndClose(connection);
+        Log.defLogger.info("channel is inactive now, try reconnect.");
+        Log.defLogger.info("connection:{} ",connection);
+        DouyuCrawlerClient nettyClient = (DouyuCrawlerClient) ClientHolder.get(connection.getRid());
+        nettyClient.reConnect();
     }
 
     @Override
@@ -69,6 +73,7 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
         Log.defLogger.error("exception caught! connection: {}",connection,cause);
 
     }
+
 
 
     //登录弹幕服务器
@@ -79,6 +84,7 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
                     if(future.isSuccess()) {
                         //connection.refreshState(Connection.ConnectionState.LOGIN_PRE);
                         Log.defLogger.info("trying login chat room:{}.",connection.getRid());
+                        Log.defLogger.info("connection:{} ",connection);
                     } else {
                         throw new NettyClientException("send login req fail,exp:{}.",future.cause());
                     }

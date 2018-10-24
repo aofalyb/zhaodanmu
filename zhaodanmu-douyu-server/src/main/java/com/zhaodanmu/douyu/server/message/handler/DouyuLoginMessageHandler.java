@@ -5,11 +5,10 @@ import com.zhaodanmu.core.common.Log;
 import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.core.netty.ConnectionState;
-import com.zhaodanmu.core.netty.NettyClient;
 import com.zhaodanmu.douyu.server.DouyuCrawlerClient;
 import com.zhaodanmu.douyu.server.message.DouyuJoinGroupReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
-import com.zhaodanmu.douyu.server.util.ClientHolder;
+import com.zhaodanmu.core.util.ClientHolder;
 
 import java.util.Objects;
 
@@ -35,10 +34,8 @@ public class DouyuLoginMessageHandler implements IMessageHandler<DouyuMessage> {
                     if(future.isSuccess()) {
                         connection.state = ConnectionState.CONNECTED;
                         Log.defLogger.info("login douyu-chat room: {} success.",connection.getRid());
-                        DouyuCrawlerClient nettyClient = (DouyuCrawlerClient) ClientHolder.get();
+                        DouyuCrawlerClient nettyClient = (DouyuCrawlerClient) ClientHolder.get(connection.getRid());
                         nettyClient.release();
-//                        connection.hearBeat();
-//                        DouyuNettyClient.notifyLoginSuccess();
                     } else {
                      //do nothing, wait lock time out
                     }

@@ -34,7 +34,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="defLogger" level="info" additivity="false">
+        <Logger name="defLogger" level="debug" additivity="false">
             <AppenderRef ref="defAppender" />
             <AppenderRef ref="Console" />
         </Logger>

@@ -16,7 +16,7 @@ public class ClientConnectionManager implements ConnectionManager {
 
     private static HashedWheelTimer wheelTimer ;
 
-    private static Map<ChannelId,Connection> connections = new ConcurrentHashMap<>();
+    private static Map<String,Connection> connections = new ConcurrentHashMap<>();
 
     @Override
     public void init() {
@@ -26,13 +26,13 @@ public class ClientConnectionManager implements ConnectionManager {
 
     @Override
     public void put(Connection connection) {
-        connections.put(connection.getChannel().id(),connection);
+        connections.put(connection.getRid(),connection);
         wheelTimer.newTimeout(new HeartBeatTask(connection),Connection.HEARTBEAT_TIMEOUT,TimeUnit.SECONDS);
     }
 
     @Override
-    public void removeAndClose(Channel channel) {
-        Connection connection = connections.remove(channel.id());
+    public void removeAndClose(Connection connection) {
+        connections.remove(connection.getRid());
         if(connection != null) {
             connection.state = ConnectionState.CLOSED;
             connection.close();
@@ -43,6 +43,11 @@ public class ClientConnectionManager implements ConnectionManager {
     public void destroy() {
         Collection<Connection> values = connections.values();
         values.forEach(Connection::close);
+    }
+
+    @Override
+    public Connection get(String id) {
+        return connections.get(id);
     }
 
 

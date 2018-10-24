@@ -8,8 +8,10 @@ public interface ConnectionManager {
 
     void put(Connection connection);
 
-    void removeAndClose(Channel channel);
+    void removeAndClose(Connection connection);
 
     void destroy();
+
+    Connection get(String id);
 
 }
