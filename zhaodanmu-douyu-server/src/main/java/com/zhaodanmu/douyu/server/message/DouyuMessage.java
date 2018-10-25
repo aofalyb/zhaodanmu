@@ -4,6 +4,7 @@ import com.zhaodanmu.core.common.Log;
 import com.zhaodanmu.core.message.BaseMessage;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.douyu.server.protocol.DouyuPacket;
+import com.zhaodanmu.douyu.server.util.DouyuSerializeUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -26,10 +27,9 @@ public class DouyuMessage extends BaseMessage {
             try {
                 originMsg = new String(douyuPacketBody,"utf-8");
                 attributes = DouyuSerializeUtil.unSerialize(originMsg);
-            } catch (UnsupportedEncodingException e) {
+            } catch (Exception e) {
                 Log.defLogger.error(e);
             }
-            Log.defLogger.debug(originMsg);
         }
         return this;
     }

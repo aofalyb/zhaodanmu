@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>persistence-elasticsearch</artifactId>
+    <artifactId>persistence-douyu-elasticsearch</artifactId>
     <build>
         <plugins>
             <plugin>

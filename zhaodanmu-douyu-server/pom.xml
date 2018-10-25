@@ -58,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>com.zhaodanmu</groupId>
-            <artifactId>persistence-elasticsearch</artifactId>
+            <artifactId>persistence-douyu-elasticsearch</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>

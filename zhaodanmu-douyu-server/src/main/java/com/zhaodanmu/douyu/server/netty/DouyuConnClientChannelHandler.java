@@ -1,18 +1,14 @@
 package com.zhaodanmu.douyu.server.netty;
 
 import com.zhaodanmu.core.common.Log;
-import com.zhaodanmu.core.event.ConnectEvent;
-import com.zhaodanmu.core.event.EventBus;
 import com.zhaodanmu.core.netty.*;
 import com.zhaodanmu.core.util.ClientHolder;
 import com.zhaodanmu.douyu.server.DouyuCrawlerClient;
 import com.zhaodanmu.douyu.server.message.DouyuLoginReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
-import com.zhaodanmu.douyu.server.message.handler.DouyuDefaultMessageHandler;
-import com.zhaodanmu.douyu.server.message.handler.DouyuLoginMessageHandler;
+import com.zhaodanmu.douyu.server.message.handler.*;
 import com.zhaodanmu.core.message.handler.MessageHandlerDispatcher;
 import com.zhaodanmu.douyu.server.protocol.DouyuPacket;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -53,8 +49,19 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
 
         //doStart handler
         messageHandlerDispatcher = new MessageHandlerDispatcher(connection);
-        messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMessageHandler());
-        messageHandlerDispatcher.register("def",new DouyuDefaultMessageHandler());
+        //处理登录相关消息
+        messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMsgHandler());
+        //弹幕聊天消息(chatmsg)
+        messageHandlerDispatcher.register("chatmsg",new DouyuChatMsgHandler());
+        // 赠送礼物消息(dgb)
+        messageHandlerDispatcher.register("dgb",new DouyuGiveGiftsMsgHandler());
+        //TODO 抢到道具消息(gpbc)
+        //用户进房消息(uenter)
+        messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler());
+        // 赠送酬劳消息(bc_buy_deserve)
+        messageHandlerDispatcher.register("bc_buy_deserve",new DouyuDeserveMsgHandler());
+
+        messageHandlerDispatcher.register("def",new DouyuDefaultMsgHandler());
         tryLogin(connection);
     }
 

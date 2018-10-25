@@ -1,4 +1,4 @@
-package com.zhaodanmu.douyu.server.message;
+package com.zhaodanmu.douyu.server.util;
 
 
 import java.util.Arrays;

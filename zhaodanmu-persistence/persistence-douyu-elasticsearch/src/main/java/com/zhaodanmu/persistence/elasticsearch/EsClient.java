@@ -92,7 +92,8 @@ public class EsClient {
         //Log.defLogger.error("TypesExistsResponse="+typesResponse.isExists());
         if(!typesResponse.isExists()) {
 
-            XContentBuilder mapping = XContentFactory.jsonBuilder().startObject().startObject("properties")
+            XContentBuilder mapping = XContentFactory.jsonBuilder().
+                    startObject().startObject("properties")
                     .startObject("uid").field("type", "keyword").endObject()
                     .startObject("nn").field("type", "keyword").endObject()
                     .startObject("text").field("type", "keyword").endObject()

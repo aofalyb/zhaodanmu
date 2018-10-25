@@ -17,7 +17,7 @@
 
     <modules>
         <module>persistence-api</module>
-        <module>persistence-elasticsearch</module>
+        <module>persistence-douyu-elasticsearch</module>
     </modules>
 
     <dependencyManagement>

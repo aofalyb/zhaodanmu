@@ -12,7 +12,7 @@ import com.zhaodanmu.core.util.ClientHolder;
 
 import java.util.Objects;
 
-public class DouyuLoginMessageHandler implements IMessageHandler<DouyuMessage> {
+public class DouyuLoginMsgHandler implements IMessageHandler<DouyuMessage> {
 
 
     @Override

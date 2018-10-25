@@ -40,7 +40,7 @@
         </Async>
 
 
-        <RollingRandomAccessFile name="systemFile" fileName="${LOG_HOME}/${logstack.application.name}-system.log" filePattern="${LOG_HOME}/system-%d{yyyy-MM-dd-HH}.log">
+        <RollingRandomAccessFile name="systemFile" fileName="${LOG_HOME}/${logstack.application.name}-system.log" filePattern="${LOG_HOME}/system-%d{yyyy-MM-dd}.log">
             <PatternLayout pattern="${system_pattern}" charset="utf-8"/>
             <Policies>
                 <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
@@ -61,7 +61,7 @@
             <AppenderRef ref="Console" />
         </Logger>
 
-        <Logger name="sysLogger" level="info" additivity="false">
+        <Logger name="sysLogger" level="debug" additivity="false">
             <AppenderRef ref="systemAppender" />
             <AppenderRef ref="Console" />
         </Logger>

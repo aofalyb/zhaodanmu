@@ -14,7 +14,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class DouyuDefaultMessageHandler implements IMessageHandler<DouyuMessage> {
+/**
+ * 默认的消息处理器，当有消息未注册处理器时，使用默认处理器处理
+ */
+public class DouyuDefaultMsgHandler_bak implements IMessageHandler<DouyuMessage> {
 
     private static EsClient esClient;
 
