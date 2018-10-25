@@ -4,6 +4,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -22,6 +23,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class EsClient {
+
+
+    final static String TYPE_NAME = "danmu";
+
+    final static String INDEX_NAME = "douyu";
 
     private EsClient() {}
 
@@ -42,8 +48,6 @@ public class EsClient {
         checkWriteFailThread.start();
     }
 
-
-
     public static  EsClient getInstance() {
         if(esClient == null) {
             synchronized (lock) {
@@ -55,60 +59,77 @@ public class EsClient {
         return esClient;
     }
 
-    public static void shutdown() {
-        if(client != null) {
+    public void shutdown() {
+        if(client != null && start) {
             client.close();
         }
-
     }
 
-    final String TYPE_NAME = "barrage";
 
-    final String INDEX_NAME = "douyu-barrage_v3";
     public void init() throws Exception{
-        long _s = System.currentTimeMillis();
-        if(client == null) {
-            Settings settings = Settings.builder().build();
-            client  = new PreBuiltTransportClient(settings)
-                    .addTransportAddress(new TransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
-        }
 
+        Settings settings = Settings
+                .builder()
+                .build();
+        client  = new PreBuiltTransportClient(settings)
+                .addTransportAddress(new TransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
 
+        IndicesExistsResponse indexExsit = client
+                .admin()
+                .indices()
+                .prepareExists(INDEX_NAME)
+                .execute()
+                .actionGet();
 
-        IndicesExistsResponse existsResponse = client.admin().indices().prepareExists(INDEX_NAME).execute().actionGet();
-
-        //Log.defLogger.error("existsResponse="+existsResponse.isExists());
-        if(!existsResponse.isExists()) {
+        if(!indexExsit.isExists()) {
             //创建
-
-            CreateIndexResponse indexResponse = client.admin().indices().prepareCreate(INDEX_NAME).execute().actionGet();
-            //Log.defLogger.error("indexResponse"+indexResponse.isAcknowledged());
+            Log.sysLogger.info("es index:{} is not exists, prepare create!",INDEX_NAME);
+            CreateIndexResponse indexCreate = client
+                    .admin()
+                    .indices()
+                    .prepareCreate(INDEX_NAME)
+                    .execute()
+                    .actionGet();
+            if(!indexCreate.isAcknowledged()) {
+                Log.sysLogger.error("create es index: {} FAILED!.",INDEX_NAME);
+                throw new ESException("create es index: " + INDEX_NAME + "failed");
+            }
+            Log.sysLogger.info("create es index: {} SUCCESS!",INDEX_NAME);
 
         }
 
         //索引字段
+        TypesExistsResponse typeExist = client
+                .admin()
+                .indices()
+                .prepareTypesExists(INDEX_NAME)
+                .setTypes(TYPE_NAME)
+                .execute()
+                .actionGet();
 
-        TypesExistsResponse typesResponse = client.admin().indices().prepareTypesExists(INDEX_NAME).setTypes(TYPE_NAME).execute().actionGet();
-        //Log.defLogger.error("TypesExistsResponse="+typesResponse.isExists());
-        if(!typesResponse.isExists()) {
-
-            XContentBuilder mapping = XContentFactory.jsonBuilder().
-                    startObject().startObject("properties")
-                    .startObject("uid").field("type", "keyword").endObject()
-                    .startObject("nn").field("type", "keyword").endObject()
-                    .startObject("text").field("type", "keyword").endObject()
-                    .endObject().endObject();
-
-            PutMappingRequest mappingRequest = Requests.putMappingRequest(INDEX_NAME).type(TYPE_NAME).source(mapping);
-
-            //Log.defLogger.error("mapping="+client.admin().indices().putMapping(mappingRequest).actionGet().isAcknowledged());
-
+        if(!typeExist.isExists()) {
+            Log.sysLogger.info("index type:{} is not exists, prepare create!",TYPE_NAME);
+            XContentBuilder mapping = XContentFactory.jsonBuilder();
+            PutMappingRequest putMappingRequest = Requests
+                    .putMappingRequest(INDEX_NAME)
+                    .type(TYPE_NAME)
+                    .source(mapping);
+            PutMappingResponse typeCreate = client.admin()
+                    .indices()
+                    .putMapping(putMappingRequest)
+                    .actionGet();
+            if(!typeCreate.isAcknowledged()){
+                Log.sysLogger.error("create index type:{} FAILED!",TYPE_NAME);
+                throw new ESException("create index type: " + TYPE_NAME + "failed");
+            }
+            Log.sysLogger.info("create index type:{} SUCCESS!",TYPE_NAME);
         }
+        Log.sysLogger.info("es client start success, use index:{}, use type:{}",INDEX_NAME,TYPE_NAME);
         start = true;
-
-        long _e = System.currentTimeMillis();
-        System.out.println(_e - _s);
     }
+
+
+
 
     private volatile static int _BATCH_LEN = 100;
     private volatile int CURSOR = 0;
