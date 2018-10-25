@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class NettyClient {
 
-    private static final Logger LOGGER = Log.defLogger;
+    private static final Logger LOGGER = Log.sysLogger;
 
     private EventLoopGroup workerGroup;
     protected Bootstrap bootstrap;

@@ -46,7 +46,7 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
 
         connection = new DouyuConnection(rid);
         connection.init(ctx.channel());
-        Log.defLogger.info("channel is active now, WELCOME.");
+        Log.sysLogger.info("channel is active now, WELCOME.");
 
         connectionManager.init();
         connectionManager.put(connection);
@@ -62,15 +62,15 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         connectionManager.removeAndClose(connection);
-        Log.defLogger.info("channel is inactive now, try reconnect.");
-        Log.defLogger.info("connection:{} ",connection);
+        Log.sysLogger.info("channel is inactive now, try reconnect.");
+        Log.sysLogger.info("connection:{} ",connection);
         DouyuCrawlerClient nettyClient = (DouyuCrawlerClient) ClientHolder.get(connection.getRid());
         nettyClient.reConnect();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        Log.defLogger.error("exception caught! connection: {}",connection,cause);
+        Log.sysLogger.error("exception caught! connection: {}",connection,cause);
 
     }
 
@@ -83,8 +83,7 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
                 .addListener((future -> {
                     if(future.isSuccess()) {
                         //connection.refreshState(Connection.ConnectionState.LOGIN_PRE);
-                        Log.defLogger.info("trying login chat room:{}.",connection.getRid());
-                        Log.defLogger.info("connection:{} ",connection);
+                        Log.sysLogger.info("trying login chat room:{}.",connection.getRid());
                     } else {
                         throw new NettyClientException("send login req fail,exp:{}.",future.cause());
                     }

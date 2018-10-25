@@ -19,7 +19,7 @@ public class DouyuLoginReqMessageTest {
                 .addListener((future -> {
                     if(future.isSuccess()) {
                         //connection.refreshState(Connection.ConnectionState.LOGIN_PRE);
-                        Log.defLogger.info("trying login chat room:{}.",connection.getRid());
+                        Log.sysLogger.info("trying login chat room:{}.",connection.getRid());
                     } else {
                         throw new NettyClientException("send login req fail,exp:{}.",future.cause());
                     }

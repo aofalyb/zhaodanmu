@@ -30,7 +30,7 @@ public class DouyuCrawlerClient extends NettyClient {
     private ConnectionManager connectionManager;
     //断线重连次数
     private AtomicInteger retryTimes = new AtomicInteger(0);
-
+    //重试标志位
     private AtomicBoolean retrying = new AtomicBoolean(false);
 
     private static ThreadPoolExecutor reConnectThread = new ThreadPoolExecutor(1, 1,
@@ -82,20 +82,22 @@ public class DouyuCrawlerClient extends NettyClient {
             ChannelFuture future = connect("openbarrage.douyutv.com", 8601);
             boolean timeOut = loginSuccessCondition.await(DouyuLoginReqMessage.LOGIN_TIME_OUT, TimeUnit.MILLISECONDS);
             if(!timeOut) {
-                Log.defLogger.error("connect rid:{} timeout.",rid);
+                Log.sysLogger.error("connect rid:{} timeout.",rid);
                 future.channel().close();
             }
             return timeOut;
         } catch (Exception e) {
-            Log.defLogger.error("exception caught when rid:{} do doStart.",rid,e);
+            Log.sysLogger.error("exception caught when rid:{} do doStart.",rid,e);
         } finally {
             lock.unlock();
         }
         return false;
     }
 
-    public boolean doStart() {
-        return doStart(this.defaultListener);
+    public void doStart() {
+        if(!doStart(this.defaultListener)) {
+            reConnect();
+        }
     }
 
     public void release() {
@@ -103,6 +105,7 @@ public class DouyuCrawlerClient extends NettyClient {
         try {
             loginSuccessCondition.signal();
             retrying.set(false);
+            retryTimes.set(0);
         } finally {
             lock.unlock();
         }
@@ -122,18 +125,18 @@ public class DouyuCrawlerClient extends NettyClient {
             return;
         }
         reConnectThread.execute(() -> {
-            Log.defLogger.info("trying reconnect conn-rid={}.",rid);
+            Log.sysLogger.info("trying reconnect conn-rid={}.",rid);
             while (!connect()) {
                 retryTimes.incrementAndGet();
-                Log.defLogger.info("trying reconnect conn-rid={}, retry times={}.",rid,retryTimes.get());
-                Log.defLogger.info("reconnect conn-rid={} time out,wait a second",rid);
+                Log.sysLogger.info("trying reconnect conn-rid={}, retry times={}.",rid,retryTimes.get());
+                Log.sysLogger.info("reconnect conn-rid={} time out,wait a second",rid);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
 
                 }
             }
-            Log.defLogger.info("reconnect conn-rid={} success, retry times = {}.",rid,retryTimes.get());
+            Log.sysLogger.info("reconnect conn-rid={} success, retry times = {}.",rid,retryTimes.get());
         });
     }
 

@@ -17,9 +17,9 @@ public class DouyuConnection extends Connection {
                 .send()
                 .addListener((future -> {
                     if(!future.isSuccess()) {
-                        Log.defLogger.error("ping rid: {}",this.getRid(),future.cause());
+                        Log.sysLogger.error("ping rid: {}",this.getRid(),future.cause());
                     }
-                    Log.defLogger.debug("ping rid: {}",this.getRid());
+                    Log.sysLogger.debug("ping rid: {}",this.getRid());
                 }));
     }
 }

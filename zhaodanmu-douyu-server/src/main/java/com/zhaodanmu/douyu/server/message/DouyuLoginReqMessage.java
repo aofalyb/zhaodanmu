@@ -11,7 +11,7 @@ import com.zhaodanmu.douyu.server.util.DouyuPacketBuilder;
  */
 public class DouyuLoginReqMessage extends DouyuMessage {
 
-    public static final int LOGIN_TIME_OUT = 1 * 1000;
+    public static final int LOGIN_TIME_OUT = 5 * 1000;
     public DouyuLoginReqMessage(Connection connection) {
         super(new DouyuPacket(("type@=loginreq/roomid@=" + connection.getRid() + "/").getBytes()),connection);
     }

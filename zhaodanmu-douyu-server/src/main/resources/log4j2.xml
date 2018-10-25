@@ -10,16 +10,25 @@
         <property name="vmid">douyu_danmu-server</property>
         <!-- 日志输出目录 -->
         <property name="LOG_HOME">logs/${logstack.client.id}</property>
+
+        <property name="default_pattern">
+            <![CDATA[ [%d{yyyy-MM-dd HH:mm:ss:SSS}] [%-5level] [default] [%t] [%C{1}:%L] %msg%n ]]>
+        </property>
+
+        <property name="system_pattern">
+            <![CDATA[ [%d{yyyy-MM-dd HH:mm:ss:SSS}] [%-5level] [system] [%t] [%C{1}:%L] %msg%n ]]>
+        </property>
     </properties>
+
 
 
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%msg%n" />
+            <PatternLayout pattern="${default_pattern}" />
         </Console>
 
-        <RollingRandomAccessFile name="defFile" fileName="${LOG_HOME}/${logstack.application.name}.log" filePattern="${LOG_HOME}/%d{yyyy-MM-dd-HH}.log">
-            <PatternLayout pattern="%msg%n" charset="utf-8"/>
+        <RollingRandomAccessFile name="defFile" fileName="${LOG_HOME}/${logstack.application.name}-default.log" filePattern="${LOG_HOME}/default-%d{yyyy-MM-dd-HH}.log">
+            <PatternLayout pattern="${default_pattern}" charset="utf-8"/>
             <Policies>
                 <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
             </Policies>
@@ -31,11 +40,29 @@
         </Async>
 
 
+        <RollingRandomAccessFile name="systemFile" fileName="${LOG_HOME}/${logstack.application.name}-system.log" filePattern="${LOG_HOME}/system-%d{yyyy-MM-dd-HH}.log">
+            <PatternLayout pattern="${system_pattern}" charset="utf-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+            <DefaultRolloverStrategy max="31"/>
+        </RollingRandomAccessFile>
+
+        <Async name="systemAppender">
+            <AppenderRef ref="systemFile"/>
+        </Async>
+
+
     </Appenders>
 
     <Loggers>
         <Logger name="defLogger" level="debug" additivity="false">
             <AppenderRef ref="defAppender" />
+            <AppenderRef ref="Console" />
+        </Logger>
+
+        <Logger name="sysLogger" level="debug" additivity="false">
+            <AppenderRef ref="systemAppender" />
             <AppenderRef ref="Console" />
         </Logger>
 

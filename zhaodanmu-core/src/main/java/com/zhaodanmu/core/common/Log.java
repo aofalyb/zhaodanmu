@@ -8,5 +8,7 @@ public interface Log {
 
     Logger defLogger = LogManager.getLogger("defLogger");
 
+    Logger sysLogger = LogManager.getLogger("sysLogger");
+
 
 }

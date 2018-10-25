@@ -69,7 +69,7 @@ public class MessageHandlerDispatcher {
         long nowTime = System.currentTimeMillis();
         long secondPassed = (nowTime - dispatchStartTime) / 1000;
         if(secondPassed >= 1) {
-            Log.defLogger.debug("conn-rid: {},tps: {}",connection.getRid(),totalDispatchInt / secondPassed);
+            Log.sysLogger.debug("conn-rid: {},duration: {} s,total: {},tps: {}",connection.getRid(),secondPassed,totalDispatchInt,totalDispatchInt / secondPassed);
         }
     }
 

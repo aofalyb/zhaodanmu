@@ -34,7 +34,7 @@ public abstract class Connection {
     }
 
     public ChannelFuture close() {
-        Log.defLogger.info("closing conn: {}",this);
+        Log.sysLogger.info("closing conn: {}",this);
         state = ConnectionState.CLOSED;
         if(channel.isActive()) {
             return channel.close();

@@ -59,9 +59,9 @@ public class DouyuDefaultMessageHandler implements IMessageHandler<DouyuMessage>
             if(esClient.isStart()) {
                 try {
                     esClient.insert(uid,nn,txt);
-                    Log.defLogger.debug("_current es write que length: {}.",insertQueue.size());
+                    Log.sysLogger.debug("_current es write que length: {}.",insertQueue.size());
                 } catch (Exception e) {
-                    Log.defLogger.error("insert into es error, nn={},txt={},uid={}",nn,txt,uid,e);
+                    Log.sysLogger.error("insert into es error, nn={},txt={},uid={}",nn,txt,uid,e);
                 }
             }
         }
