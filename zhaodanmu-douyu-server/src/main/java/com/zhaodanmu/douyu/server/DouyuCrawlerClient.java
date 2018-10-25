@@ -104,8 +104,6 @@ public class DouyuCrawlerClient extends NettyClient {
         lock.lock();
         try {
             loginSuccessCondition.signal();
-            retrying.set(false);
-            retryTimes.set(0);
         } finally {
             lock.unlock();
         }
@@ -125,11 +123,11 @@ public class DouyuCrawlerClient extends NettyClient {
             return;
         }
         reConnectThread.execute(() -> {
-            Log.sysLogger.info("trying reconnect conn-rid={}.",rid);
+            Log.sysLogger.warn("trying reconnect conn-rid={}.",rid);
             while (!connect()) {
                 retryTimes.incrementAndGet();
-                Log.sysLogger.info("trying reconnect conn-rid={}, retry times={}.",rid,retryTimes.get());
-                Log.sysLogger.info("reconnect conn-rid={} time out,wait a second",rid);
+                Log.sysLogger.warn("trying reconnect conn-rid={}, retry times={}.",rid,retryTimes.get());
+                Log.sysLogger.warn("reconnect conn-rid={} time out,wait a second",rid);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -137,6 +135,8 @@ public class DouyuCrawlerClient extends NettyClient {
                 }
             }
             Log.sysLogger.info("reconnect conn-rid={} success, retry times = {}.",rid,retryTimes.get());
+            retrying.set(false);
+            retryTimes.set(0);
         });
     }
 

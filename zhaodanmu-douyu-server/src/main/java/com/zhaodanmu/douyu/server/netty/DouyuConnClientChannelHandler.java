@@ -46,7 +46,7 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
 
         connection = new DouyuConnection(rid);
         connection.init(ctx.channel());
-        Log.sysLogger.info("channel is active now, WELCOME.");
+        Log.sysLogger.info("channel:{} is active now, WELCOME.",ctx.channel());
 
         connectionManager.init();
         connectionManager.put(connection);
@@ -62,8 +62,7 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         connectionManager.removeAndClose(connection);
-        Log.sysLogger.info("channel is inactive now, try reconnect.");
-        Log.sysLogger.info("connection:{} ",connection);
+        Log.sysLogger.info("channel:{} is inactive now, try reconnect.",ctx.channel());
         DouyuCrawlerClient nettyClient = (DouyuCrawlerClient) ClientHolder.get(connection.getRid());
         nettyClient.reConnect();
     }
