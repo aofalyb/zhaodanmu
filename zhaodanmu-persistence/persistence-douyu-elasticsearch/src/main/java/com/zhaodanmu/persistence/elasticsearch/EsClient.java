@@ -1,5 +1,8 @@
 package com.zhaodanmu.persistence.elasticsearch;
 
+import com.alibaba.fastjson.JSON;
+import com.zhaodanmu.persistence.elasticsearch.model.DouyuESModel;
+import com.zhaodanmu.persistence.elasticsearch.util.NamedPoolThreadFactory;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
@@ -15,12 +18,14 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Iterator;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 public class EsClient {
 
@@ -39,6 +44,13 @@ public class EsClient {
     private static Object lock = new Object();
 
     private static BlockingQueue<BulkResponse> waitCheckQueue = new LinkedBlockingQueue<>();
+
+    private static final int THREAD_COUNT = 1;
+    private static LinkedBlockingQueue insertQueue = new LinkedBlockingQueue<Runnable>();
+    //用线程池的想法是：线程池是天然的缓冲区，insert本身是阻塞的，可以缓冲写入。
+    private static final ThreadPoolExecutor threadPool =  new ThreadPoolExecutor(THREAD_COUNT, THREAD_COUNT,
+            0L, TimeUnit.MILLISECONDS,
+            insertQueue,new NamedPoolThreadFactory("es-writer"));
 
     static {
 
@@ -61,18 +73,23 @@ public class EsClient {
 
     public void shutdown() {
         if(client != null && start) {
+            threadPool.shutdown();
             client.close();
         }
     }
 
 
-    public void init() throws Exception{
+    public void init(String host,int port) {
 
         Settings settings = Settings
                 .builder()
                 .build();
-        client  = new PreBuiltTransportClient(settings)
-                .addTransportAddress(new TransportAddress(InetAddress.getByName("127.0.0.1"), 9300));
+        try {
+            client  = new PreBuiltTransportClient(settings)
+                    .addTransportAddress(new TransportAddress(InetAddress.getByName(host), port));
+        } catch (UnknownHostException e) {
+            throw new ESException(e);
+        }
 
         IndicesExistsResponse indexExsit = client
                 .admin()
@@ -109,11 +126,10 @@ public class EsClient {
 
         if(!typeExist.isExists()) {
             Log.sysLogger.info("index type:{} is not exists, prepare create!",TYPE_NAME);
-            XContentBuilder mapping = XContentFactory.jsonBuilder();
             PutMappingRequest putMappingRequest = Requests
                     .putMappingRequest(INDEX_NAME)
                     .type(TYPE_NAME)
-                    .source(mapping);
+                    .source(getMapping());
             PutMappingResponse typeCreate = client.admin()
                     .indices()
                     .putMapping(putMappingRequest)
@@ -124,31 +140,62 @@ public class EsClient {
             }
             Log.sysLogger.info("create index type:{} SUCCESS!",TYPE_NAME);
         }
-        Log.sysLogger.info("es client start success, use index:{}, use type:{}",INDEX_NAME,TYPE_NAME);
+        Log.sysLogger.info("es client start success at:{}, use index:{}, use type:{}",host + ":" + port,INDEX_NAME,TYPE_NAME);
         start = true;
     }
 
 
+    private XContentBuilder getMapping() {
+        try {
+            return XContentFactory.jsonBuilder()
+                    .startObject()
+                    .startObject("properties")
+                    .startObject("rid").field("type","long").endObject()
+                    .startObject("uid").field("type","long").endObject()
+                    .startObject("level").field("type","integer").endObject()
+                    .startObject("nn").field("type","keyword").endObject()
+                    .startObject("gid").field("type","long").endObject()
+                    .startObject("ic").field("type","keyword").endObject()
+                    .startObject("nl").field("type","integer").endObject()
+                    .startObject("nc").field("type","integer").endObject()
+                    .startObject("bnn").field("type","keyword").endObject()
+                    .startObject("bl").field("type","integer").endObject()
+                    .startObject("brid").field("type","long").endObject()
+                    .startObject("type").field("type","keyword").endObject()
+                    .startObject("txt").field("type","keyword").endObject()
+                    .startObject("cid").field("type","keyword").endObject()
+                    .startObject("col").field("type","integer").endObject()
+                    .startObject("rev").field("type","integer").endObject()
+                    .startObject("hl").field("type","integer").endObject()
+                    .startObject("ifs").field("type","integer").endObject()
+                    .startObject("cnt").field("type","integer").endObject()
+                    .startObject("lev").field("type","integer").endObject()
+                    .startObject("gfid").field("type","long").endObject()
+                    .startObject("gfcnt").field("type","integer").endObject()
+                    .startObject("hits").field("type","integer").endObject()
+                    .startObject("now").field("type","date").endObject()
+                    .endObject()
+                    .endObject();
+
+        } catch (IOException e) {
+        }
+
+
+        return null;
+    }
 
 
     private volatile static int _BATCH_LEN = 100;
     private volatile int CURSOR = 0;
     private volatile BulkRequestBuilder bulkRequestBuilder;
 
-    /**
-     * 这一段代码多线程环境下会报错，所以加了同步锁（原因抽时间再查）。
-     *
-     */
-    public synchronized void insert(String uid,String nn,String text) throws Exception {
+
+    public synchronized void insert(DouyuESModel douyuESModel) {
 
         long _s = System.currentTimeMillis();
 
         IndexRequestBuilder indexRequestBuilder = client.prepareIndex(INDEX_NAME, TYPE_NAME)
-                .setSource(XContentFactory.jsonBuilder().startObject()
-                        .field("uid", uid)
-                        .field("nn", nn)
-                        .field("text", text)
-                        .endObject());
+                .setSource(JSON.toJSONString(douyuESModel), XContentType.JSON);
 
         if(bulkRequestBuilder == null) {
             bulkRequestBuilder = client.prepareBulk();
@@ -163,13 +210,25 @@ public class EsClient {
         }
 
         BulkResponse bulkItemResponses = bulkRequestBuilder.get();
-        waitCheckQueue.put(bulkItemResponses);
+        try {
+            waitCheckQueue.put(bulkItemResponses);
+        } catch (InterruptedException e) {
+
+        }
         bulkRequestBuilder = null;
         CURSOR = 0;
-
-
         long _e = System.currentTimeMillis();
-        System.out.println("insert cost time="+(_e - _s)+"ms, result="+bulkItemResponses.hasFailures()+".");
+        Log.defLogger.info("es insert cost time=" + (_e - _s) +"ms, hasFailures=" + bulkItemResponses.hasFailures()+",insertQueue=" + insertQueue.size());
+    }
+
+
+    public synchronized void asyncInsert(final DouyuESModel douyuESModel) {
+        threadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                insert(douyuESModel);
+            }
+        });
     }
 
 

@@ -5,8 +5,9 @@ import com.zhaodanmu.core.common.Log;
 import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
-import com.zhaodanmu.persistence.elasticsearch.model.ChatMessageModel;
-import com.zhaodanmu.persistence.elasticsearch.model.GiveGiftsModel;
+import com.zhaodanmu.douyu.server.model.GiveGiftsModel;
+import com.zhaodanmu.persistence.elasticsearch.EsClient;
+import com.zhaodanmu.persistence.elasticsearch.model.DouyuESModel;
 
 import java.util.Map;
 
@@ -15,16 +16,16 @@ public class DouyuGiveGiftsMsgHandler implements IMessageHandler<DouyuMessage> {
     public boolean handle(Connection connection, DouyuMessage message) {
         Map<String, String> attributes = message.getAttributes();
 
-        GiveGiftsModel giveGifts = null;
+        DouyuESModel giveGifts = null;
         try {
-            giveGifts = JSON.parseObject(JSON.toJSONString(attributes), GiveGiftsModel.class);
+            giveGifts = JSON.parseObject(JSON.toJSONString(attributes), DouyuESModel.class);
             Log.defLogger.debug(giveGifts);
         } catch (Exception e) {
             Log.sysLogger.error("json serialize: {} ",attributes,e);
             return false;
         }
         //写入持久化
-
+        EsClient.getInstance().asyncInsert(giveGifts);
         return false;
     }
 }

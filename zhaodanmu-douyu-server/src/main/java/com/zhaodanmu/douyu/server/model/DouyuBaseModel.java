@@ -1,4 +1,4 @@
-package com.zhaodanmu.persistence.elasticsearch.model;
+package com.zhaodanmu.douyu.server.model;
 
 import com.zhaodanmu.persistence.api.Model;
 

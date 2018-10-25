@@ -56,12 +56,12 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="defLogger" level="debug" additivity="false">
+        <Logger name="defLogger" level="info" additivity="false">
             <AppenderRef ref="defAppender" />
             <AppenderRef ref="Console" />
         </Logger>
 
-        <Logger name="sysLogger" level="debug" additivity="false">
+        <Logger name="sysLogger" level="info" additivity="false">
             <AppenderRef ref="systemAppender" />
             <AppenderRef ref="Console" />
         </Logger>

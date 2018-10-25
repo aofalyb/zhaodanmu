@@ -36,16 +36,18 @@
             <version>27.0-jre</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
 
         <dependencies>
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>fastjson</artifactId>
-                <version>${fastjson.version}</version>
-            </dependency>
+
 
             <dependency>
                 <groupId>io.netty</groupId>

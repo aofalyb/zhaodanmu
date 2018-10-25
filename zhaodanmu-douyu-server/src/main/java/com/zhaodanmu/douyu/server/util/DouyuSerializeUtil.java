@@ -21,7 +21,7 @@ public class DouyuSerializeUtil {
             if(!thisVk.contains("/")){
                 String[] nextVks = nextVk.split("/");
                 if(nextVks.length == 0){
-                    attrs.put(thisVk,"");
+                    //attrs.put(thisVk,"");
                 }else if(nextVks.length <= 2){
                     attrs.put(thisVk,nextVks[0]);
                 }else if(nextVks.length > 2){
@@ -35,7 +35,7 @@ public class DouyuSerializeUtil {
                 }else if(thisVks.length == 2){
                     String[] nextVks = nextVk.split("/");
                     if(nextVks.length == 0){
-                        attrs.put(thisVks[1],"");
+                        //attrs.put(thisVks[1],"");
                     }else if(nextVks.length <= 2){
                         attrs.put(thisVks[1],nextVks[0]);
                     }else if(nextVks.length > 2){

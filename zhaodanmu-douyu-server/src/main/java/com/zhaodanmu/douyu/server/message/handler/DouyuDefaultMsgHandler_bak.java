@@ -60,12 +60,7 @@ public class DouyuDefaultMsgHandler_bak implements IMessageHandler<DouyuMessage>
         @Override
         public void run() {
             if(esClient.isStart()) {
-                try {
-                    esClient.insert(uid,nn,txt);
-                    Log.sysLogger.debug("_current es write que length: {}.",insertQueue.size());
-                } catch (Exception e) {
-                    Log.sysLogger.error("insert into es error, nn={},txt={},uid={}",nn,txt,uid,e);
-                }
+
             }
         }
     }

@@ -25,10 +25,6 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>

@@ -1,4 +1,4 @@
-package com.zhaodanmu.persistence.elasticsearch.model;
+package com.zhaodanmu.douyu.server.model;
 
 public class DeserveModel extends DouyuBaseModel {
 
