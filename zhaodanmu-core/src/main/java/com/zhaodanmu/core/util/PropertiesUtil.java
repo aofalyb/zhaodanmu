@@ -1,5 +1,7 @@
 package com.zhaodanmu.core.util;
 
+import com.zhaodanmu.core.common.Log;
+
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,15 +17,21 @@ public class PropertiesUtil {
         if(properties == null) {
             properties = new Properties();
         }
-        String filePath = System.getProperty("user.dir") + "\\etc\\" + fileName;
+        String filePath = System.getProperty("user.dir") + "/etc/" + fileName;
+        Log.sysLogger.debug("loading config path: {}",filePath);
         try {
-            InputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(filePath));
-            properties.load(bufferedInputStream);
+            FileInputStream inputStream = new FileInputStream(filePath);
+            if(inputStream != null){
+                properties.load(inputStream);
+            }
         } catch (Exception e) {
         }
         if(properties.isEmpty()) {
             try {
-                properties.load(PropertiesUtil.class.getClassLoader().getResourceAsStream(fileName));
+                InputStream resource = PropertiesUtil.class.getClassLoader().getResourceAsStream(fileName);
+                if(resource != null) {
+                    properties.load(resource);
+                }
             } catch (Exception e) {
             }
         }

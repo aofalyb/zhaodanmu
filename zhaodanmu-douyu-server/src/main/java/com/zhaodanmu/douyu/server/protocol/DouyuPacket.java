@@ -85,7 +85,7 @@ public class DouyuPacket implements Packet {
 
     @Override
     public String toString() {
-        return "douyu-packet{" +
+        return "douyu.properties-packet{" +
                 "length=" + length +
                 ", encrypt=" + encrypt +
                 ", reserved=" + reserved +

@@ -33,7 +33,7 @@ public class DouyuLoginMsgHandler implements IMessageHandler<DouyuMessage> {
                 .addListener((future -> {
                     if(future.isSuccess()) {
                         connection.state = ConnectionState.CONNECTED;
-                        Log.sysLogger.info("login douyu-chat room: {} success.",connection.getRid());
+                        Log.sysLogger.info("login douyu.properties-chat room: {} success.",connection.getRid());
                         DouyuCrawlerClient nettyClient = (DouyuCrawlerClient) ClientHolder.get(connection.getRid());
                         nettyClient.release();
                     } else {
