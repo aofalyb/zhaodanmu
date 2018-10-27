@@ -52,12 +52,12 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
         //处理登录相关消息
         messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMsgHandler());
         //弹幕聊天消息(chatmsg)
-        messageHandlerDispatcher.register("chatmsg",new DouyuChatMsgHandler());
+        messageHandlerDispatcher.register("chatmsg|uenter",new DouyuChatMsgHandler());
         // 赠送礼物消息(dgb)
         messageHandlerDispatcher.register("dgb",new DouyuGiveGiftsMsgHandler());
         //TODO 抢到道具消息(gpbc)
         //用户进房消息(uenter)
-        messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler());
+        //messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler());
         // 赠送酬劳消息(bc_buy_deserve)
         messageHandlerDispatcher.register("bc_buy_deserve",new DouyuDeserveMsgHandler());
         //被禁言消息（newblackres）
