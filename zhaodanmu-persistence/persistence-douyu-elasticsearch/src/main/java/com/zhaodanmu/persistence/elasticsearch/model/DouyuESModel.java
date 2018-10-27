@@ -1,11 +1,14 @@
 package com.zhaodanmu.persistence.elasticsearch.model;
 
+import com.zhaodanmu.persistence.api.Model;
+import com.zhaodanmu.persistence.elasticsearch.TypeNameEnmu;
+
 import java.util.Date;
 
 /**
  * es数据模型
  */
-public class DouyuESModel {
+public class DouyuESModel implements Model{
 
     private Date t = new Date();
 
@@ -139,5 +142,15 @@ public class DouyuESModel {
 
     public void setGfcnt(int gfcnt) {
         this.gfcnt = gfcnt;
+    }
+
+    @Override
+    public String getMType() {
+        return TypeNameEnmu.danmu.name();
+    }
+
+    @Override
+    public String getPK() {
+        return null;
     }
 }

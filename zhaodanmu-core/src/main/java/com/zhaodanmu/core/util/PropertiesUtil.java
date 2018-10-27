@@ -18,9 +18,9 @@ public class PropertiesUtil {
             properties = new Properties();
         }
         String filePath = System.getProperty("user.dir") + "/etc/" + fileName;
-        Log.sysLogger.debug("loading config path: {}",filePath);
         try {
             FileInputStream inputStream = new FileInputStream(filePath);
+            Log.sysLogger.info("loading config path: {},stream:{}",filePath,inputStream);
             if(inputStream != null){
                 properties.load(inputStream);
             }
@@ -29,6 +29,8 @@ public class PropertiesUtil {
         if(properties.isEmpty()) {
             try {
                 InputStream resource = PropertiesUtil.class.getClassLoader().getResourceAsStream(fileName);
+                Log.sysLogger.info("loading resource file: {},stream:{}",fileName,resource);
+
                 if(resource != null) {
                     properties.load(resource);
                 }

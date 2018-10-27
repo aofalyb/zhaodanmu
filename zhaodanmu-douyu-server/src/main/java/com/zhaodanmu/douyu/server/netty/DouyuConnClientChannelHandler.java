@@ -60,6 +60,8 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
         messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler());
         // 赠送酬劳消息(bc_buy_deserve)
         messageHandlerDispatcher.register("bc_buy_deserve",new DouyuDeserveMsgHandler());
+        //被禁言消息（newblackres）
+        messageHandlerDispatcher.register("newblackres",new NewBlackMsgHandler());
 
         messageHandlerDispatcher.register("def",new DouyuDefaultMsgHandler());
         tryLogin(connection);

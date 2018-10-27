@@ -1,27 +1,27 @@
-package com.zhaodanmu.douyu.server.model;
+package com.zhaodanmu.persistence.elasticsearch.model;
 
 import com.zhaodanmu.persistence.api.Model;
+import com.zhaodanmu.persistence.elasticsearch.TypeNameEnmu;
 
-public class DouyuBaseModel implements Model {
+import java.util.Date;
 
+public class ULiveRoomModel implements Model {
 
-    protected Long rid;//房间 id
     protected Long uid;//发送者 uid
+    protected Long rid;//房间 id
     protected int level;//用户等级
     protected String nn;//发送者昵称
-    protected String gid;//弹幕组 id
     protected String ic;//用户头像
 
     protected int nl;//贵族等级
 
-    protected int nc;//贵族弹幕标识,0-非贵族弹幕,1-贵族弹幕,默认值 0
-
     protected String bnn;//徽章昵称
 
-    protected Integer bl;//徽章等级
+    protected int bl;//徽章等级
 
     protected Long brid;//徽章房间 id
 
+    private Date t = new Date();
 
     public Long getRid() {
         return rid;
@@ -55,13 +55,7 @@ public class DouyuBaseModel implements Model {
         this.nn = nn;
     }
 
-    public String getGid() {
-        return gid;
-    }
 
-    public void setGid(String gid) {
-        this.gid = gid;
-    }
 
     public String getIc() {
         return ic;
@@ -79,14 +73,6 @@ public class DouyuBaseModel implements Model {
         this.nl = nl;
     }
 
-    public int getNc() {
-        return nc;
-    }
-
-    public void setNc(int nc) {
-        this.nc = nc;
-    }
-
     public String getBnn() {
         return bnn;
     }
@@ -95,11 +81,11 @@ public class DouyuBaseModel implements Model {
         this.bnn = bnn;
     }
 
-    public Integer getBl() {
+    public int getBl() {
         return bl;
     }
 
-    public void setBl(Integer bl) {
+    public void setBl(int bl) {
         this.bl = bl;
     }
 
@@ -111,13 +97,36 @@ public class DouyuBaseModel implements Model {
         this.brid = brid;
     }
 
+    public Date getT() {
+        return t;
+    }
+
+    public void setT(Date t) {
+        this.t = t;
+    }
+
+    @Override
+    public String toString() {
+        return "ULiveRoomModel{" +
+                "uid=" + uid +
+                ", rid=" + rid +
+                ", level=" + level +
+                ", nn='" + nn + '\'' +
+                ", ic='" + ic + '\'' +
+                ", nl=" + nl +
+                ", bnn='" + bnn + '\'' +
+                ", bl=" + bl +
+                ", brid=" + brid +
+                '}';
+    }
+
     @Override
     public String getMType() {
-        return null;
+        return TypeNameEnmu.user.name();
     }
 
     @Override
     public String getPK() {
-        return null;
+        return String.valueOf(uid);
     }
 }

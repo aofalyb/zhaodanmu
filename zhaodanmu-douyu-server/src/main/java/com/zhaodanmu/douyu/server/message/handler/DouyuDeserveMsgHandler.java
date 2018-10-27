@@ -5,7 +5,6 @@ import com.zhaodanmu.core.common.Log;
 import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
-import com.zhaodanmu.douyu.server.model.DeserveModel;
 import com.zhaodanmu.persistence.elasticsearch.EsClient;
 import com.zhaodanmu.persistence.elasticsearch.model.DouyuESModel;
 
@@ -25,7 +24,7 @@ public class DouyuDeserveMsgHandler implements IMessageHandler<DouyuMessage> {
             return false;
         }
         //写入持久化
-        EsClient.getInstance().asyncInsert(deserve);
+        EsClient.getInstance().bufferedInsert(deserve);
 
         return false;
     }

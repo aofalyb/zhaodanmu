@@ -1,7 +1,7 @@
 package com.zhaodanmu.persistence.elasticsearch;
 
 import com.alibaba.fastjson.JSON;
-import com.zhaodanmu.persistence.elasticsearch.model.DouyuESModel;
+import com.zhaodanmu.persistence.api.Model;
 import com.zhaodanmu.persistence.elasticsearch.util.NamedPoolThreadFactory;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
@@ -25,14 +25,12 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class EsClient {
 
-
-    final static String TYPE_NAME = "danmu";
-
-    final static String INDEX_NAME = "douyu";
 
     private EsClient() {}
 
@@ -44,9 +42,14 @@ public class EsClient {
     private static Object lock = new Object();
 
     private static BlockingQueue<BulkResponse> waitCheckQueue = new LinkedBlockingQueue<>();
+    private static BlockingQueue<Model> bufferedModelQueue = new LinkedBlockingQueue<>();
 
     private static final int THREAD_COUNT = 1;
     private static LinkedBlockingQueue insertQueue = new LinkedBlockingQueue<Runnable>();
+    //可能被调整
+    private volatile int modelBufferSize = 500;
+    private int originModelBufferSize = modelBufferSize;
+    private int dangerInstertQueueSize = 388;
     //用线程池的想法是：线程池是天然的缓冲区，insert本身是阻塞的，可以缓冲写入。
     private static final ThreadPoolExecutor threadPool =  new ThreadPoolExecutor(THREAD_COUNT, THREAD_COUNT,
             0L, TimeUnit.MILLISECONDS,
@@ -60,6 +63,7 @@ public class EsClient {
         checkWriteFailThread.start();
     }
 
+
     public static  EsClient getInstance() {
         if(esClient == null) {
             synchronized (lock) {
@@ -69,13 +73,6 @@ public class EsClient {
             }
         }
         return esClient;
-    }
-
-    public void shutdown() {
-        if(client != null && start) {
-            threadPool.shutdown();
-            client.close();
-        }
     }
 
 
@@ -94,141 +91,325 @@ public class EsClient {
         IndicesExistsResponse indexExsit = client
                 .admin()
                 .indices()
-                .prepareExists(INDEX_NAME)
+                .prepareExists(TypeNameEnmu.danmu.name())
                 .execute()
                 .actionGet();
 
         if(!indexExsit.isExists()) {
             //创建
-            Log.sysLogger.info("es index:{} is not exists, prepare create!",INDEX_NAME);
+            Log.sysLogger.info("es index:{} is not exists, prepare create!",TypeNameEnmu.danmu.name());
             CreateIndexResponse indexCreate = client
                     .admin()
                     .indices()
-                    .prepareCreate(INDEX_NAME)
+                    .prepareCreate(TypeNameEnmu.danmu.name())
                     .execute()
                     .actionGet();
             if(!indexCreate.isAcknowledged()) {
-                Log.sysLogger.error("create es index: {} FAILED!.",INDEX_NAME);
-                throw new ESException("create es index: " + INDEX_NAME + "failed");
+                Log.sysLogger.error("create es index: {} FAILED!.",TypeNameEnmu.danmu.name());
+                throw new ESException("create es index: " + TypeNameEnmu.danmu.name() + "failed");
             }
-            Log.sysLogger.info("create es index: {} SUCCESS!",INDEX_NAME);
+            Log.sysLogger.info("create es index: {} SUCCESS!",TypeNameEnmu.danmu.name());
 
         }
 
+        indexExsit = client
+                .admin()
+                .indices()
+                .prepareExists(TypeNameEnmu.new_black.name())
+                .execute()
+                .actionGet();
+
+        if(!indexExsit.isExists()) {
+            //创建
+            Log.sysLogger.info("es index:{} is not exists, prepare create!",TypeNameEnmu.new_black.name());
+            CreateIndexResponse indexCreate = client
+                    .admin()
+                    .indices()
+                    .prepareCreate(TypeNameEnmu.new_black.name())
+                    .execute()
+                    .actionGet();
+            if(!indexCreate.isAcknowledged()) {
+                Log.sysLogger.error("create es index: {} FAILED!.",TypeNameEnmu.new_black.name());
+                throw new ESException("create es index: " + TypeNameEnmu.new_black.name() + "failed");
+            }
+            Log.sysLogger.info("create es index: {} SUCCESS!",TypeNameEnmu.new_black.name());
+
+        }
+
+        indexExsit = client
+                .admin()
+                .indices()
+                .prepareExists(TypeNameEnmu.user.name())
+                .execute()
+                .actionGet();
+
+        if(!indexExsit.isExists()) {
+            //创建
+            Log.sysLogger.info("es index:{} is not exists, prepare create!",TypeNameEnmu.user.name());
+            CreateIndexResponse indexCreate = client
+                    .admin()
+                    .indices()
+                    .prepareCreate(TypeNameEnmu.user.name())
+                    .execute()
+                    .actionGet();
+            if(!indexCreate.isAcknowledged()) {
+                Log.sysLogger.error("create es index: {} FAILED!.",TypeNameEnmu.user.name());
+                throw new ESException("create es index: " + TypeNameEnmu.user.name() + "failed");
+            }
+            Log.sysLogger.info("create es index: {} SUCCESS!",TypeNameEnmu.user.name());
+
+        }
+
+        //danmu
         //索引字段
         TypesExistsResponse typeExist = client
                 .admin()
                 .indices()
-                .prepareTypesExists(INDEX_NAME)
-                .setTypes(TYPE_NAME)
+                .prepareTypesExists(TypeNameEnmu.danmu.name())
+                .setTypes(TypeNameEnmu.danmu.name())
                 .execute()
                 .actionGet();
 
         if(!typeExist.isExists()) {
-            Log.sysLogger.info("index type:{} is not exists, prepare create!",TYPE_NAME);
+            Log.sysLogger.info("index type:{} is not exists, prepare create!", TypeNameEnmu.danmu.name());
             PutMappingRequest putMappingRequest = Requests
-                    .putMappingRequest(INDEX_NAME)
-                    .type(TYPE_NAME)
-                    .source(getMapping());
+                    .putMappingRequest( TypeNameEnmu.danmu.name())
+                    .type(TypeNameEnmu.danmu.name())
+                    .source(getMapping(TypeNameEnmu.danmu));
             PutMappingResponse typeCreate = client.admin()
                     .indices()
                     .putMapping(putMappingRequest)
                     .actionGet();
             if(!typeCreate.isAcknowledged()){
-                Log.sysLogger.error("create index type:{} FAILED!",TYPE_NAME);
-                throw new ESException("create index type: " + TYPE_NAME + "failed");
+                Log.sysLogger.error("create index type:{} FAILED!", TypeNameEnmu.danmu.name());
+                throw new ESException("create index type: " + TypeNameEnmu.danmu.name() + "failed");
             }
-            Log.sysLogger.info("create index type:{} SUCCESS!",TYPE_NAME);
+            Log.sysLogger.info("create index type:{} SUCCESS!", TypeNameEnmu.danmu.name());
         }
-        Log.sysLogger.info("es client start success at:{}, use index:{}, use type:{}",host + ":" + port,INDEX_NAME,TYPE_NAME);
+
+        typeExist = client
+                .admin()
+                .indices()
+                .prepareTypesExists(TypeNameEnmu.new_black.name())
+                .setTypes(TypeNameEnmu.new_black.name())
+                .execute()
+                .actionGet();
+
+        if(!typeExist.isExists()) {
+            Log.sysLogger.info("index type:{} is not exists, prepare create!", TypeNameEnmu.new_black.name());
+            PutMappingRequest putMappingRequest = Requests
+                    .putMappingRequest(TypeNameEnmu.new_black.name())
+                    .type(TypeNameEnmu.new_black.name())
+                    .source(getMapping(TypeNameEnmu.new_black));
+            PutMappingResponse typeCreate = client.admin()
+                    .indices()
+                    .putMapping(putMappingRequest)
+                    .actionGet();
+            if(!typeCreate.isAcknowledged()){
+                Log.sysLogger.error("create index type:{} FAILED!", TypeNameEnmu.new_black.name());
+                throw new ESException("create index type: " + TypeNameEnmu.new_black.name() + "failed");
+            }
+            Log.sysLogger.info("create index type:{} SUCCESS!", TypeNameEnmu.new_black.name());
+        }
+
+
+        typeExist = client
+                .admin()
+                .indices()
+                .prepareTypesExists(TypeNameEnmu.user.name())
+                .setTypes(TypeNameEnmu.user.name())
+                .execute()
+                .actionGet();
+
+        if(!typeExist.isExists()) {
+            Log.sysLogger.info("index type:{} is not exists, prepare create!", TypeNameEnmu.user.name());
+            PutMappingRequest putMappingRequest = Requests
+                    .putMappingRequest(TypeNameEnmu.user.name())
+                    .type(TypeNameEnmu.user.name())
+                    .source(getMapping(TypeNameEnmu.user));
+            PutMappingResponse typeCreate = client.admin()
+                    .indices()
+                    .putMapping(putMappingRequest)
+                    .actionGet();
+            if(!typeCreate.isAcknowledged()){
+                Log.sysLogger.error("create index type:{} FAILED!", TypeNameEnmu.user.name());
+                throw new ESException("create index type: " + TypeNameEnmu.user.name() + "failed");
+            }
+            Log.sysLogger.info("create index type:{} SUCCESS!", TypeNameEnmu.user.name());
+        }
+
+
+
+
+        Log.sysLogger.info("es client start success at:{}",host + ":" + port);
         start = true;
     }
 
 
-    private XContentBuilder getMapping() {
-        try {
-            return XContentFactory.jsonBuilder()
-                    .startObject()
-                    .startObject("properties")
-                    .startObject("t").field("type","date").endObject()
-                    .startObject("rid").field("type","long").endObject()
-                    .startObject("uid").field("type","long").endObject()
-                    .startObject("level").field("type","integer").endObject()
-                    .startObject("nn").field("type","keyword").endObject()
-                    //.startObject("gid").field("type","long").endObject()
-                    //.startObject("ic").field("type","keyword").endObject()
-                    //.startObject("nl").field("type","integer").endObject()
-                    //.startObject("nc").field("type","integer").endObject()
-                    //.startObject("bnn").field("type","keyword").endObject()
-                    //.startObject("bl").field("type","integer").endObject()
-                    //.startObject("brid").field("type","long").endObject()
-                    .startObject("type").field("type","keyword").endObject()
-                    .startObject("txt").field("type","keyword").endObject()
-                    //.startObject("cid").field("type","keyword").endObject()
-                    //.startObject("col").field("type","integer").endObject()
-                    //.startObject("rev").field("type","integer").endObject()
-                    //.startObject("hl").field("type","integer").endObject()
-                    //.startObject("ifs").field("type","integer").endObject()
-                    .startObject("cnt").field("type","integer").endObject()
-                    .startObject("lev").field("type","integer").endObject()
-                    .startObject("gfid").field("type","long").endObject()
-                    .startObject("gfcnt").field("type","integer").endObject()
-                    //.startObject("hits").field("type","integer").endObject()
-                    .endObject()
-                    .endObject();
+    private XContentBuilder getMapping(TypeNameEnmu typeName) {
+        if(typeName.equals(TypeNameEnmu.danmu)) {
+            try {
+                return XContentFactory.jsonBuilder()
+                        .startObject()
+                        .startObject("properties")
+                        .startObject("t").field("type","date").endObject()
+                        .startObject("rid").field("type","long").endObject()
+                        .startObject("uid").field("type","long").endObject()
+                        .startObject("level").field("type","integer").endObject()
+                        .startObject("nn").field("type","keyword").endObject()
+                        //.startObject("gid").field("type","long").endObject()
+                        //.startObject("ic").field("type","keyword").endObject()
+                        //.startObject("nl").field("type","integer").endObject()
+                        //.startObject("nc").field("type","integer").endObject()
+                        //.startObject("bnn").field("type","keyword").endObject()
+                        //.startObject("bl").field("type","integer").endObject()
+                        //.startObject("brid").field("type","long").endObject()
+                        .startObject("type").field("type","keyword").endObject()
+                        .startObject("txt").field("type","keyword").endObject()
+                        //.startObject("cid").field("type","keyword").endObject()
+                        //.startObject("col").field("type","integer").endObject()
+                        //.startObject("rev").field("type","integer").endObject()
+                        //.startObject("hl").field("type","integer").endObject()
+                        //.startObject("ifs").field("type","integer").endObject()
+                        .startObject("cnt").field("type","integer").endObject()
+                        .startObject("lev").field("type","integer").endObject()
+                        .startObject("gfid").field("type","long").endObject()
+                        .startObject("gfcnt").field("type","integer").endObject()
+                        .startObject("hits").field("type","integer").endObject()
+                        .endObject()
+                        .endObject();
 
-        } catch (IOException e) {
+            } catch (IOException e) {
+            }
         }
+
+        if(typeName.equals(TypeNameEnmu.new_black)) {
+            try {
+                return XContentFactory.jsonBuilder()
+                        .startObject()
+                        .startObject("properties")
+                        .startObject("t").field("type","date").endObject()
+                        .startObject("rid").field("type","long").endObject()
+                        .startObject("type").field("type","keyword").endObject()
+                        .startObject("ret").field("type","keyword").endObject()
+                        .startObject("otype").field("type","integer").endObject()
+                        .startObject("sid").field("type","long").endObject()
+                        .startObject("did").field("type","long").endObject()
+                        .startObject("snic").field("type","keyword").endObject()
+                        .startObject("dnic").field("type","keyword").endObject()
+                        .startObject("endtime").field("type","long").endObject()
+                        .endObject()
+                        .endObject();
+
+            } catch (IOException e) {
+            }
+        }
+
+
+        if(typeName.equals(TypeNameEnmu.user)) {
+            try {
+                return XContentFactory.jsonBuilder()
+                        .startObject()
+                        .startObject("properties")
+
+                        .startObject("t").field("type","date").endObject()
+                        .startObject("rid").field("type","long").endObject()
+                        .startObject("uid").field("type","long").endObject()
+                        .startObject("level").field("type","integer").endObject()
+                        .startObject("nn").field("type","keyword").endObject()
+                        .startObject("ic").field("type","keyword").endObject()
+                        .startObject("nl").field("type","integer").endObject()
+                        .startObject("bnn").field("type","keyword").endObject()
+                        .startObject("bl").field("type","integer").endObject()
+                        .startObject("brid").field("type","long").endObject()
+
+                        .endObject()
+                        .endObject();
+
+            } catch (IOException e) {
+            }
+        }
+
 
 
         return null;
     }
 
 
-    private volatile static int _BATCH_LEN = 100;
-    private volatile int CURSOR = 0;
-    private volatile BulkRequestBuilder bulkRequestBuilder;
 
 
-    public synchronized void insert(DouyuESModel douyuESModel) {
-
-        long _s = System.currentTimeMillis();
-
-        IndexRequestBuilder indexRequestBuilder = client.prepareIndex(INDEX_NAME, TYPE_NAME)
-                .setSource(JSON.toJSONString(douyuESModel), XContentType.JSON);
-
-        if(bulkRequestBuilder == null) {
-            bulkRequestBuilder = client.prepareBulk();
+    /**
+     * 带缓冲地同步写入es
+     */
+    public void bufferedInsert(Model model) {
+        bufferedModelQueue.add(model);
+        if(bufferedModelQueue.size() > modelBufferSize) {
+            List<Model> models = new LinkedList<>();
+            bufferedModelQueue.drainTo(models,modelBufferSize);
+            while (models.size() < modelBufferSize) {
+                bufferedModelQueue.drainTo(models,modelBufferSize);
+            }
+            batchInsert(true,models);
         }
-
-        //批量写入，不知道es有没有带buffer类，没有的话，考虑自己实现一个
-        //这里用游标实现了一个非常简单的buffer
-        if(CURSOR < _BATCH_LEN) {
-            bulkRequestBuilder.add(indexRequestBuilder.request());
-            ++CURSOR;
-            return;
-        }
-
-        BulkResponse bulkItemResponses = bulkRequestBuilder.get();
-        try {
-            waitCheckQueue.put(bulkItemResponses);
-        } catch (InterruptedException e) {
-
-        }
-        bulkRequestBuilder = null;
-        CURSOR = 0;
-        long _e = System.currentTimeMillis();
-        Log.defLogger.info("es insert cost time=" + (_e - _s) +"ms, hasFailures=" + bulkItemResponses.hasFailures()+",insertQueue=" + insertQueue.size());
     }
 
+    public void batchInsert(final boolean async,final List<Model> models) {
 
-    public synchronized void asyncInsert(final DouyuESModel douyuESModel) {
         threadPool.execute(new Runnable() {
             @Override
             public void run() {
-                insert(douyuESModel);
+                final BulkRequestBuilder bulkRequestBuilder = client.prepareBulk();
+                for (final Model model: models) {
+                    if(async) {
+                        IndexRequestBuilder indexRequestBuilder = client
+                                .prepareIndex(model.getMType(), model.getMType())
+                                .setSource(JSON.toJSONString(model), XContentType.JSON)
+                                .setId(model.getPK());
+
+                        bulkRequestBuilder.add(indexRequestBuilder.request());
+                    }
+                }
+
+                long _s = System.currentTimeMillis();
+                BulkResponse bulkItemResponses = bulkRequestBuilder.get();
+                long _e = System.currentTimeMillis();
+                int queueSize = insertQueue.size();
+                Log.defLogger.info("es bufferedInsert cost time: {} ms, hasFailures: {}, waitInsert: {}",_e-_s,bulkItemResponses.hasFailures(), queueSize);
+                //动态调整
+                if(queueSize > dangerInstertQueueSize) {
+                    if(modelBufferSize < originModelBufferSize * 100) {
+                        modelBufferSize = modelBufferSize * 10;
+                    }
+                    Log.defLogger.warn("es dynamic regulation 'modelBufferSize' ,waitInsert:{}, new value: {}",queueSize,modelBufferSize);
+                } else if(modelBufferSize != originModelBufferSize && queueSize == 0) {
+                    modelBufferSize = originModelBufferSize;
+                    Log.defLogger.warn("es dynamic regulation 'modelBufferSize' ,waitInsert:{}, new value: {}",queueSize,modelBufferSize);
+                }
+
+                try {
+                    waitCheckQueue.put(bulkItemResponses);
+                } catch (InterruptedException e) {
+
+                }
             }
         });
+
+    }
+
+
+
+    public void insert(Model model) {
+
+    }
+
+
+
+    public void shutdown() {
+        if(client != null && start) {
+            threadPool.shutdown();
+            client.close();
+            //TODO [清空写入队列]
+        }
     }
 
 
