@@ -102,6 +102,7 @@ public class EsClient {
                     .admin()
                     .indices()
                     .prepareCreate(TypeNameEnmu.danmu.name())
+                    .setSettings(Settings.builder().put("index.number_of_replicas",0).build())
                     .execute()
                     .actionGet();
             if(!indexCreate.isAcknowledged()) {
@@ -126,6 +127,7 @@ public class EsClient {
                     .admin()
                     .indices()
                     .prepareCreate(TypeNameEnmu.new_black.name())
+                    .setSettings(Settings.builder().put("index.number_of_replicas",0).build())
                     .execute()
                     .actionGet();
             if(!indexCreate.isAcknowledged()) {
@@ -150,6 +152,7 @@ public class EsClient {
                     .admin()
                     .indices()
                     .prepareCreate(TypeNameEnmu.user.name())
+                    .setSettings(Settings.builder().put("index.number_of_replicas",0).build())
                     .execute()
                     .actionGet();
             if(!indexCreate.isAcknowledged()) {
