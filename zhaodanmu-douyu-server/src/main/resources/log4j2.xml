@@ -18,6 +18,10 @@
         <property name="system_pattern">
             <![CDATA[ [%d{yyyy-MM-dd HH:mm:ss:SSS}] [%-5level] [system] [%t] [%C{1}:%L] %msg%n ]]>
         </property>
+
+        <property name="http_pattern">
+            <![CDATA[ [%d{yyyy-MM-dd HH:mm:ss:SSS}] [%-5level] [system] [%t] [%C{1}:%L] %msg%n ]]>
+        </property>
     </properties>
 
 
@@ -52,6 +56,18 @@
             <AppenderRef ref="systemFile"/>
         </Async>
 
+        <RollingRandomAccessFile name="httpFile" fileName="${LOG_HOME}/${logstack.application.name}-http.log" filePattern="${LOG_HOME}/system-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${system_pattern}" charset="utf-8"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+            </Policies>
+            <DefaultRolloverStrategy max="31"/>
+        </RollingRandomAccessFile>
+
+        <Async name="httpAppender">
+            <AppenderRef ref="httpFile"/>
+        </Async>
+
 
     </Appenders>
 
@@ -61,8 +77,13 @@
             <AppenderRef ref="Console" />
         </Logger>
 
-        <Logger name="sysLogger" level="info" additivity="false">
+        <Logger name="sysLogger" level="debug" additivity="false">
             <AppenderRef ref="systemAppender" />
+            <AppenderRef ref="Console" />
+        </Logger>
+
+        <Logger name="httpLogger" level="debug" additivity="false">
+            <AppenderRef ref="httpAppender" />
             <AppenderRef ref="Console" />
         </Logger>
 

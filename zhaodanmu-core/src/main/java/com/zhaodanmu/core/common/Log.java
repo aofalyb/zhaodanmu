@@ -10,5 +10,5 @@ public interface Log {
 
     Logger sysLogger = LogManager.getLogger("sysLogger");
 
-
+    Logger httpLogger = LogManager.getLogger("httpLogger");
 }

@@ -37,6 +37,6 @@ public class DouyuChatMsgHandler implements IMessageHandler<DouyuMessage> {
             EsClient.getInstance().bufferedInsert(uLiveRoomModel);
             userInsertCache.put(uLiveRoomModel.getPK(),uLiveRoomModel.getPK());
         }
-        return false;
+        return true;
     }
 }

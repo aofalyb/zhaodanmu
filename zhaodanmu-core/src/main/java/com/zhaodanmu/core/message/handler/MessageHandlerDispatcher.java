@@ -17,7 +17,7 @@ public class MessageHandlerDispatcher {
     private static final String OR = "\\|";
     private Map<String,IMessageHandler> handlerMap;
 
-    private AtomicInteger totalDispatch = new AtomicInteger(0);
+    private static AtomicInteger totalDispatch = new AtomicInteger(0);
     private long dispatchStartTime = -1L;
     private Connection connection;
 
@@ -68,8 +68,9 @@ public class MessageHandlerDispatcher {
         }
         long nowTime = System.currentTimeMillis();
         long secondPassed = (nowTime - dispatchStartTime) / 1000;
-        if(secondPassed >= 1) {
-            Log.sysLogger.debug("conn-rid: {},duration: {} s,total: {},tps: {}",connection.getRid(),secondPassed,totalDispatchInt,totalDispatchInt / secondPassed);
+        //5s打印一次
+        if(secondPassed >= 1 && secondPassed % 5 == 0) {
+            Log.sysLogger.debug("tps info: {duration: {} s,total: {},tps: {}}",secondPassed,totalDispatchInt,totalDispatchInt / secondPassed);
         }
     }
 

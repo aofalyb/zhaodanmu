@@ -2,6 +2,7 @@ package com.zhaodanmu.core.netty;
 
 import com.zhaodanmu.core.common.Listener;
 import com.zhaodanmu.core.common.Log;
+import com.zhaodanmu.core.util.CommonUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -96,12 +97,12 @@ public abstract class NettyClient {
     public abstract ChannelHandler getChannelHandler();
 
     protected boolean doStart(Listener listener) {
-        if (false) {
+        if (CommonUtils.useNettyEpoll()) {
             createEpollClient(listener);
         } else {
             createNioClient(listener);
         }
-        return false;
+        return true;
     }
 
     protected void doStop(Listener listener) throws Throwable {
@@ -124,6 +125,7 @@ public abstract class NettyClient {
     public SelectorProvider getSelectorProvider() {
         return SelectorProvider.provider();
     }
+
 
     @Override
     public String toString() {
