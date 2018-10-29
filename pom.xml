@@ -12,6 +12,7 @@
         <module>zhaodanmu-core</module>
         <module>zhaodanmu-douyu-server</module>
         <module>zhaodanmu-persistence</module>
+        <module>zhaodanmu-spring-app</module>
     </modules>
 
     <properties>
