@@ -12,7 +12,7 @@ public class CommonUtils {
         try {
             Class.forName("io.netty.channel.epoll.Native");
             Log.sysLogger.warn("netty epoll is available,use epoll now.");
-            return false;
+            return true;
         } catch (Throwable error) {
             Log.sysLogger.warn("can not load netty epoll, switch nio model.");
         }
