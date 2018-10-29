@@ -5,26 +5,35 @@ import com.zhaodanmu.app.api.IDouyuSearchService;
 import com.zhaodanmu.app.api.Response;
 import com.zhaodanmu.app.model.DanmuModel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/douyu/danmu")
 public class DanmuSearchController {
 
+
     @Autowired
     private IDouyuSearchService douyuSearchService;
 
-    @GetMapping("/_q/{keyword}")
-    public Response search(@PathVariable String keyword) {
+    @PostMapping("/_q")
+    public Response search(@RequestBody DouyuDanmuQuery query) {
 
-        List<DanmuModel> danmuModels = douyuSearchService.searchDouyuDanmu(new DouyuDanmuQuery());
+        String keyword = query.getNn();
+        if(Objects.isNull(keyword)) {
+            return new Response(-1,"请输入你想要查询的用户昵称");
+        }
+
+        if(keyword.contains("*") || keyword.contains("?")) {
+            return new Response(-2,"不支持的特殊符号'* ?'");
+        }
+
+        List<DanmuModel> danmuModels = douyuSearchService.searchDouyuDanmu(query);
         return new Response(danmuModels);
     }
 
