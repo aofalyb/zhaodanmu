@@ -51,7 +51,7 @@ public abstract class Connection {
     public ChannelFuture send(Packet packet) {
         if(!isConnected()) {
             //TODO 【需要做限制吗？】
-            //throw new NettyClientRuntimeException("can't send any data before connection connected");
+            //throw new NettyRuntimeException("can't send any data before connection connected");
         }
         if(channel.isActive()) {
             ChannelFuture future = channel.writeAndFlush(packet);
@@ -65,7 +65,7 @@ public abstract class Connection {
             }
             return future;
         } else {
-            throw new NettyClientRuntimeException("can't send any data: channel is inactive now");
+            throw new NettyRuntimeException("can't send any data: channel is inactive now");
         }
     }
 

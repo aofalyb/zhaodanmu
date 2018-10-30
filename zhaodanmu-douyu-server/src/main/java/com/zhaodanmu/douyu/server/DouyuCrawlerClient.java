@@ -92,7 +92,10 @@ public class DouyuCrawlerClient extends NettyClient {
         return false;
     }
 
-    public void doStart() {
+    /**
+     * 同步阻塞启动客户端
+     */
+    public void sync() {
         if(!doStart(this.defaultListener)) {
             reConnect();
         }

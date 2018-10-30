@@ -333,8 +333,6 @@ public class EsClient {
             }
         }
 
-
-
         return null;
     }
 
@@ -346,7 +344,7 @@ public class EsClient {
      */
     public void bufferedInsert(Model model) {
         bufferedModelQueue.add(model);
-        if(bufferedModelQueue.size() > modelBufferSize) {
+        if(bufferedModelQueue.size() > modelBufferSize && isStart()) {
             List<Model> models = new LinkedList<>();
             bufferedModelQueue.drainTo(models,modelBufferSize);
             while (models.size() < modelBufferSize) {
