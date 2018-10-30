@@ -5,6 +5,7 @@ import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
+import com.zhaodanmu.persistence.api.PersistenceService;
 import com.zhaodanmu.persistence.elasticsearch.EsClient;
 import com.zhaodanmu.persistence.elasticsearch.model.NewBlackresModel;
 
@@ -12,6 +13,11 @@ import java.util.Map;
 
 public class NewBlackMsgHandler implements IMessageHandler<DouyuMessage> {
 
+    private PersistenceService persistenceService;
+
+    public NewBlackMsgHandler(PersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
+    }
 
     @Override
     public boolean handle(Connection connection, DouyuMessage message) {
@@ -25,8 +31,7 @@ public class NewBlackMsgHandler implements IMessageHandler<DouyuMessage> {
             return false;
         }
         //写入持久化
-        EsClient.getInstance().bufferedInsert(newBlackresModel);
-
+        persistenceService.bufferedInsert(newBlackresModel);
         return false;
     }
 }

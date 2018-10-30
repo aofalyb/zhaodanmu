@@ -9,11 +9,17 @@ import com.zhaodanmu.douyu.server.DouyuCrawlerClient;
 import com.zhaodanmu.douyu.server.message.DouyuJoinGroupReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
 import com.zhaodanmu.core.util.ClientHolder;
+import com.zhaodanmu.persistence.api.PersistenceService;
 
 import java.util.Objects;
 
 public class DouyuLoginMsgHandler implements IMessageHandler<DouyuMessage> {
 
+    private PersistenceService persistenceService;
+
+    public DouyuLoginMsgHandler(PersistenceService persistenceService) {
+        this.persistenceService = persistenceService;
+    }
 
     @Override
     public boolean handle(Connection connection, DouyuMessage message) {

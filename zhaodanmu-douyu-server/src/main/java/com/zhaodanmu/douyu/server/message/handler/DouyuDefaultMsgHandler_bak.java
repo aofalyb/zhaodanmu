@@ -18,11 +18,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class DouyuDefaultMsgHandler_bak implements IMessageHandler<DouyuMessage> {
 
-    private static EsClient esClient;
-
-    static {
-        esClient = EsClient.getInstance();
-    }
 
     private static final int THREAD_COUNT = 1;
     private static LinkedBlockingQueue insertQueue = new LinkedBlockingQueue<Runnable>();
@@ -58,9 +53,6 @@ public class DouyuDefaultMsgHandler_bak implements IMessageHandler<DouyuMessage>
 
         @Override
         public void run() {
-            if(esClient.isStart()) {
-
-            }
         }
     }
 }

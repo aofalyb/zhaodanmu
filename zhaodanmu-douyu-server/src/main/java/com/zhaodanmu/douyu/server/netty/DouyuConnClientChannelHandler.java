@@ -9,6 +9,7 @@ import com.zhaodanmu.douyu.server.message.DouyuMessage;
 import com.zhaodanmu.douyu.server.message.handler.*;
 import com.zhaodanmu.core.message.handler.MessageHandlerDispatcher;
 import com.zhaodanmu.douyu.server.protocol.DouyuPacket;
+import com.zhaodanmu.persistence.api.PersistenceService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -22,11 +23,13 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
     public String rid;
     private MessageHandlerDispatcher messageHandlerDispatcher;
 
+    private PersistenceService persistenceService;
     private ConnectionManager connectionManager;
 
-    public DouyuConnClientChannelHandler(String rid,ConnectionManager connectionManager) {
+    public DouyuConnClientChannelHandler(String rid,ConnectionManager connectionManager,PersistenceService persistenceService) {
         this.rid = rid;
         this.connectionManager = connectionManager;
+        this.persistenceService = persistenceService;
     }
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -50,20 +53,20 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
         //doStart handler
         messageHandlerDispatcher = new MessageHandlerDispatcher(connection);
         //处理登录相关消息
-        messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMsgHandler());
+        messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMsgHandler(persistenceService));
         //弹幕聊天消息(chatmsg)
-        messageHandlerDispatcher.register("chatmsg|uenter",new DouyuChatMsgHandler());
+        messageHandlerDispatcher.register("chatmsg|uenter",new DouyuChatMsgHandler(persistenceService));
         // 赠送礼物消息(dgb)
-        messageHandlerDispatcher.register("dgb",new DouyuGiveGiftsMsgHandler());
+        messageHandlerDispatcher.register("dgb",new DouyuGiveGiftsMsgHandler(persistenceService));
         //TODO 抢到道具消息(gpbc)
         //用户进房消息(uenter)
         //messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler());
         // 赠送酬劳消息(bc_buy_deserve)
-        messageHandlerDispatcher.register("bc_buy_deserve",new DouyuDeserveMsgHandler());
+        messageHandlerDispatcher.register("bc_buy_deserve",new DouyuDeserveMsgHandler(persistenceService));
         //被禁言消息（newblackres）
-        messageHandlerDispatcher.register("newblackres",new NewBlackMsgHandler());
+        messageHandlerDispatcher.register("newblackres",new NewBlackMsgHandler(persistenceService));
 
-        messageHandlerDispatcher.register("def",new DouyuDefaultMsgHandler());
+        messageHandlerDispatcher.register("def",new DouyuDefaultMsgHandler(persistenceService));
         tryLogin(connection);
     }
 

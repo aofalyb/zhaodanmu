@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.zhaodanmu.common.thread.NamedPoolThreadFactory;
 import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.persistence.api.Model;
+import com.zhaodanmu.persistence.api.PersistenceService;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
@@ -30,10 +31,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class EsClient {
+public class EsClient implements PersistenceService {
 
-
-    private EsClient() {}
 
     private volatile static EsClient esClient;
 
@@ -64,20 +63,10 @@ public class EsClient {
         checkWriteFailThread.start();
     }
 
-
-    public static  EsClient getInstance() {
-        if(esClient == null) {
-            synchronized (lock) {
-                if(esClient == null) {
-                    esClient = new EsClient();
-                }
-            }
-        }
-        return esClient;
-    }
-
-
-    public void init(String host,int port) {
+    @Override
+    public void init(Object...args) {
+        final String host = (String) args[0];
+        final int port = (int) args[1];
 
         Log.sysLogger.info("connecting es client es.host: [{}]",host + ":" + port);
 
@@ -338,10 +327,10 @@ public class EsClient {
 
 
 
-
     /**
      * 带缓冲地同步写入es
      */
+    @Override
     public void bufferedInsert(Model model) {
         bufferedModelQueue.add(model);
         if(bufferedModelQueue.size() > modelBufferSize && isStart()) {
@@ -354,6 +343,7 @@ public class EsClient {
         }
     }
 
+    @Override
     public void batchInsert(final boolean async,final List<Model> models) {
 
         threadPool.execute(new Runnable() {
@@ -399,13 +389,15 @@ public class EsClient {
 
 
 
+    @Override
     public void insert(Model model) {
 
     }
 
 
 
-    public void shutdown() {
+    @Override
+    public void shutdown(Object...args) {
         if(client != null && start) {
             threadPool.shutdown();
             client.close();
@@ -414,6 +406,7 @@ public class EsClient {
     }
 
 
+    @Override
     public boolean isStart() {
         return start;
     }

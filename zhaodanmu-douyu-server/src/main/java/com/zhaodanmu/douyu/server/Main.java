@@ -3,6 +3,7 @@ package com.zhaodanmu.douyu.server;
 import com.zhaodanmu.core.common.Listener;
 import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.common.utils.PropertiesUtil;
+import com.zhaodanmu.persistence.api.PersistenceService;
 import com.zhaodanmu.persistence.elasticsearch.EsClient;
 
 import java.util.concurrent.CountDownLatch;
@@ -13,16 +14,14 @@ public class Main {
 
         System.setProperty("io.netty.noUnsafe","false");
         String[] roomsArray = CC.rooms;
-        //EsClient.getInstance().init(CC.esHost,CC.esPort);
-
+        PersistenceService esClient = new EsClient();
+        esClient.init(CC.esHost,CC.esPort);
         for (int i = 0; i < roomsArray.length; i++) {
-            DouyuCrawlerClient douyuCrawlerClient = new DouyuCrawlerClient(roomsArray[i]);
+            DouyuCrawlerClient douyuCrawlerClient = new DouyuCrawlerClient(roomsArray[i],esClient);
             douyuCrawlerClient.sync();
         }
-
         DouyuHttpServer douyuServer = new DouyuHttpServer(CC.httpPort,CC.httpHost);
         douyuServer.sync();
-
         Log.sysLogger.info("======================================");
         Log.sysLogger.info("======================================");
         Log.sysLogger.info("========== SERVER START SUCCESS ======");

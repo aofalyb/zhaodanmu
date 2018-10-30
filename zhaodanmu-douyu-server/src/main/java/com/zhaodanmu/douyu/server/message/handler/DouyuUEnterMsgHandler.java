@@ -24,7 +24,7 @@ public class DouyuUEnterMsgHandler implements IMessageHandler<DouyuMessage> {
             return false;
         }
         //写入持久化
-        EsClient.getInstance().bufferedInsert(uEnterModel);
+        //EsClient.getInstance().bufferedInsert(uEnterModel);
 
         return false;
     }

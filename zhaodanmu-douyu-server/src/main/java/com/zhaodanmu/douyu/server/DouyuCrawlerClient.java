@@ -9,6 +9,7 @@ import com.zhaodanmu.douyu.server.netty.DouyuConnClientChannelHandler;
 import com.zhaodanmu.douyu.server.netty.codec.DouyuPacketDecoder;
 import com.zhaodanmu.douyu.server.netty.codec.DouyuPacketEncoder;
 import com.zhaodanmu.core.util.ClientHolder;
+import com.zhaodanmu.persistence.api.PersistenceService;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 
@@ -26,6 +27,8 @@ public class DouyuCrawlerClient extends NettyClient {
     private Lock lock = new ReentrantLock();
     private Condition loginSuccessCondition = lock.newCondition();
     private ConnectionManager connectionManager;
+
+    private PersistenceService persistenceService;
     //断线重连次数
     private AtomicInteger retryTimes = new AtomicInteger(0);
     //重试标志位
@@ -47,8 +50,9 @@ public class DouyuCrawlerClient extends NettyClient {
         }
     };
 
-    public DouyuCrawlerClient(String rid) {
+    public DouyuCrawlerClient(String rid,PersistenceService persistenceService) {
         this.rid = rid;
+        this.persistenceService = persistenceService;
         ClientHolder.hold(rid,this);
     }
 
@@ -64,7 +68,7 @@ public class DouyuCrawlerClient extends NettyClient {
 
     @Override
     public ChannelHandler getChannelHandler() {
-        return new DouyuConnClientChannelHandler(rid,connectionManager = new ClientConnectionManager());
+        return new DouyuConnClientChannelHandler(rid,connectionManager = new ClientConnectionManager(),persistenceService);
     }
 
     @Override
