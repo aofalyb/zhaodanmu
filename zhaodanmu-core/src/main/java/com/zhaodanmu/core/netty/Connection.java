@@ -33,6 +33,10 @@ public abstract class Connection {
         return state.equals(ConnectionState.CONNECTED);
     }
 
+    public void refreshLastRead() {
+        lastReadTime = System.currentTimeMillis();
+    }
+
     public ChannelFuture close() {
         Log.sysLogger.info("closing conn: {}",this);
         state = ConnectionState.CLOSED;

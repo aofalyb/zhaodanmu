@@ -15,18 +15,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MessageHandlerDispatcher {
 
     private static final String OR = "\\|";
-    private Map<String,IMessageHandler> handlerMap;
+    private Map<String,IMessageHandler> handlerMap = new HashMap<>();
 
     private static AtomicInteger totalDispatch = new AtomicInteger(0);
     private long dispatchStartTime = -1L;
-    private Connection connection;
-
-    public MessageHandlerDispatcher(Connection connection) {
-        handlerMap = new HashMap<>();
-        this.connection = connection;
-    }
 
     public void register(String key, IMessageHandler messageHandler) {
+        Log.sysLogger.info("register message handler: [{}] -> {}",key,messageHandler.getClass().getName());
         if(key.contains("|")) {
             String[] keys = key.split(OR);
             for (String singleKey: keys) {
@@ -46,15 +41,13 @@ public class MessageHandlerDispatcher {
         return getHandler("def");
     }
 
-    public boolean dispatch(Message message) {
+    public boolean dispatch(Connection connection,Message message) {
         Message decodeMessage = message.decodeBody();
         echoTPS();
         IMessageHandler handler = getHandler(decodeMessage.getMessageType());
         if(handler == null) {
             handler = getDefaultHandler();
         }
-        //TODO 这里需要细化到具体的message类型
-
         return handler.handle(connection,decodeMessage);
     }
 

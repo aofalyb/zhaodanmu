@@ -3,8 +3,10 @@ package com.zhaodanmu.douyu.server;
 
 import com.zhaodanmu.core.common.Listener;
 import com.zhaodanmu.common.utils.Log;
+import com.zhaodanmu.core.message.handler.MessageHandlerDispatcher;
 import com.zhaodanmu.core.netty.*;
 import com.zhaodanmu.douyu.server.message.DouyuLoginReqMessage;
+import com.zhaodanmu.douyu.server.message.handler.*;
 import com.zhaodanmu.douyu.server.netty.DouyuConnClientChannelHandler;
 import com.zhaodanmu.douyu.server.netty.codec.DouyuPacketDecoder;
 import com.zhaodanmu.douyu.server.netty.codec.DouyuPacketEncoder;
@@ -28,7 +30,7 @@ public class DouyuCrawlerClient extends NettyClient {
     private Condition loginSuccessCondition = lock.newCondition();
     private ConnectionManager connectionManager;
 
-    private PersistenceService persistenceService;
+    private static PersistenceService persistenceService;
     //断线重连次数
     private AtomicInteger retryTimes = new AtomicInteger(0);
     //重试标志位
@@ -36,7 +38,11 @@ public class DouyuCrawlerClient extends NettyClient {
 
     private static ThreadPoolExecutor reConnectThread = new ThreadPoolExecutor(1, 1,
                                       0L, TimeUnit.MILLISECONDS,
-                                      new LinkedBlockingQueue<Runnable>());;
+                                      new LinkedBlockingQueue<Runnable>());
+
+    private static MessageHandlerDispatcher messageHandlerDispatcher;
+
+
 
     private Listener defaultListener = new Listener() {
         @Override
@@ -54,6 +60,25 @@ public class DouyuCrawlerClient extends NettyClient {
         this.rid = rid;
         this.persistenceService = persistenceService;
         ClientHolder.hold(rid,this);
+        if(messageHandlerDispatcher == null) {
+            //doStart handler
+            messageHandlerDispatcher = new MessageHandlerDispatcher();
+            //处理登录相关消息
+            messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMsgHandler(persistenceService));
+            //弹幕聊天消息(chatmsg)
+            messageHandlerDispatcher.register("chatmsg|uenter",new DouyuChatMsgHandler(persistenceService));
+            // 赠送礼物消息(dgb)
+            messageHandlerDispatcher.register("dgb",new DouyuGiveGiftsMsgHandler(persistenceService));
+            //TODO 抢到道具消息(gpbc)
+            //用户进房消息(uenter)
+            //messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler());
+            // 赠送酬劳消息(bc_buy_deserve)
+            messageHandlerDispatcher.register("bc_buy_deserve",new DouyuDeserveMsgHandler(persistenceService));
+            //被禁言消息（newblackres）
+            messageHandlerDispatcher.register("newblackres",new NewBlackMsgHandler(persistenceService));
+
+            messageHandlerDispatcher.register("def",new DouyuDefaultMsgHandler(persistenceService));
+        }
     }
 
     @Override
@@ -68,7 +93,7 @@ public class DouyuCrawlerClient extends NettyClient {
 
     @Override
     public ChannelHandler getChannelHandler() {
-        return new DouyuConnClientChannelHandler(rid,connectionManager = new ClientConnectionManager(),persistenceService);
+        return new DouyuConnClientChannelHandler(rid,connectionManager = new ClientConnectionManager(),messageHandlerDispatcher);
     }
 
     @Override
