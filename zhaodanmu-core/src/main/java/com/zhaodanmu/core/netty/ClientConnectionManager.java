@@ -1,8 +1,6 @@
 package com.zhaodanmu.core.netty;
 
-import com.zhaodanmu.core.common.NamedPoolThreadFactory;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelId;
+import com.zhaodanmu.common.thread.NamedPoolThreadFactory;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;

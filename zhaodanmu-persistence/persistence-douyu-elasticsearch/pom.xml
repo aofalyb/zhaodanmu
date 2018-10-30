@@ -28,6 +28,10 @@
 
         <dependency>
             <groupId>com.zhaodanmu</groupId>
+            <artifactId>zhaodanmu-cmomon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.zhaodanmu</groupId>
             <artifactId>persistence-api</artifactId>
             <version>1.0.0</version>
         </dependency>

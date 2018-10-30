@@ -1,6 +1,6 @@
 package com.zhaodanmu.douyu.server.netty;
 
-import com.zhaodanmu.core.common.Log;
+import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.netty.*;
 import com.zhaodanmu.core.util.ClientHolder;
 import com.zhaodanmu.douyu.server.DouyuCrawlerClient;

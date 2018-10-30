@@ -1,4 +1,4 @@
-package com.zhaodanmu.persistence.elasticsearch;
+package com.zhaodanmu.common.utils;
 
 
 import org.apache.logging.log4j.LogManager;
@@ -10,5 +10,5 @@ public interface Log {
 
     Logger sysLogger = LogManager.getLogger("sysLogger");
 
-
+    Logger httpLogger = LogManager.getLogger("httpLogger");
 }

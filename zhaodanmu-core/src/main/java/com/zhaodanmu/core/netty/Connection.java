@@ -1,6 +1,6 @@
 package com.zhaodanmu.core.netty;
 
-import com.zhaodanmu.core.common.Log;
+import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.protocol.Packet;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;

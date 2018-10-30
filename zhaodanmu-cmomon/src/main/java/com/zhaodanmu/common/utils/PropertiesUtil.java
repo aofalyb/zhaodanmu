@@ -1,10 +1,7 @@
-package com.zhaodanmu.core.util;
+package com.zhaodanmu.common.utils;
 
-import com.zhaodanmu.core.common.Log;
 
-import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -13,7 +10,7 @@ public class PropertiesUtil {
 
     private static Properties properties;
 
-    public static synchronized void load(String fileName) {
+    public static synchronized Properties load(String fileName) {
         if(properties == null) {
             properties = new Properties();
         }
@@ -37,6 +34,7 @@ public class PropertiesUtil {
             } catch (Exception e) {
             }
         }
+        return properties;
     }
 
 

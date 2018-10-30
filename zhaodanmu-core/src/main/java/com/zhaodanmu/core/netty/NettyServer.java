@@ -3,8 +3,8 @@
 package com.zhaodanmu.core.netty;
 
 import com.zhaodanmu.core.common.Listener;
-import com.zhaodanmu.core.common.Log;
-import com.zhaodanmu.core.util.CommonUtils;
+import com.zhaodanmu.common.utils.Log;
+import com.zhaodanmu.core.util.NettySurportUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -65,7 +65,7 @@ public abstract class NettyServer {
 
     public void start(final Listener listener) {
 
-        if (CommonUtils.useNettyEpoll()) {
+        if (NettySurportUtils.useNettyEpoll()) {
             createEpollServer(listener);
         } else {
             createNioServer(listener);

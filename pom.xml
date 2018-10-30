@@ -13,6 +13,7 @@
         <module>zhaodanmu-douyu-server</module>
         <module>zhaodanmu-persistence</module>
         <module>zhaodanmu-spring-app</module>
+        <module>zhaodanmu-cmomon</module>
     </modules>
 
     <properties>
@@ -49,6 +50,11 @@
 
         <dependencies>
 
+            <dependency>
+                <groupId>com.zhaodanmu</groupId>
+                <artifactId>zhaodanmu-cmomon</artifactId>
+                <version>1.0.0</version>
+            </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>

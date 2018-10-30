@@ -27,6 +27,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>com.zhaodanmu</groupId>
+            <artifactId>zhaodanmu-cmomon</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
         </dependency>
@@ -36,10 +42,7 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-        </dependency>
+
 
 
     </dependencies>

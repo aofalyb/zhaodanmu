@@ -1,14 +1,13 @@
 package com.zhaodanmu.core.netty;
 
 import com.zhaodanmu.core.common.Listener;
-import com.zhaodanmu.core.common.Log;
-import com.zhaodanmu.core.util.CommonUtils;
+import com.zhaodanmu.common.utils.Log;
+import com.zhaodanmu.core.util.NettySurportUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.epoll.Native;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -16,8 +15,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.spi.SelectorProvider;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public abstract class NettyClient {
@@ -97,7 +94,7 @@ public abstract class NettyClient {
     public abstract ChannelHandler getChannelHandler();
 
     protected boolean doStart(Listener listener) {
-        if (CommonUtils.useNettyEpoll()) {
+        if (NettySurportUtils.useNettyEpoll()) {
             createEpollClient(listener);
         } else {
             createNioClient(listener);

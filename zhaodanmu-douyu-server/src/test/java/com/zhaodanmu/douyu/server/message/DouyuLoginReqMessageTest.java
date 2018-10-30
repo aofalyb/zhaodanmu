@@ -1,12 +1,10 @@
 package com.zhaodanmu.douyu.server.message;
 
-import com.zhaodanmu.core.common.Log;
+import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.core.netty.NettyClientException;
 import com.zhaodanmu.douyu.server.netty.DouyuConnection;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class DouyuLoginReqMessageTest {
 

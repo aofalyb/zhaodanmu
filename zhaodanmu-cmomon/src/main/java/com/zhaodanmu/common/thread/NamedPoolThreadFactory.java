@@ -17,7 +17,7 @@
  *   ohun@live.cn (夜色)
  */
 
-package com.zhaodanmu.persistence.elasticsearch.util;
+package com.zhaodanmu.common.thread;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

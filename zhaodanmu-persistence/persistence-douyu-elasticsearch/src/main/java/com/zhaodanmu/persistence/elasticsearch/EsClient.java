@@ -1,8 +1,9 @@
 package com.zhaodanmu.persistence.elasticsearch;
 
 import com.alibaba.fastjson.JSON;
+import com.zhaodanmu.common.thread.NamedPoolThreadFactory;
+import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.persistence.api.Model;
-import com.zhaodanmu.persistence.elasticsearch.util.NamedPoolThreadFactory;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
@@ -77,6 +78,8 @@ public class EsClient {
 
 
     public void init(String host,int port) {
+
+        Log.sysLogger.info("connecting es client es.host: [{}]",host + ":" + port);
 
         Settings settings = Settings
                 .builder()
@@ -241,10 +244,7 @@ public class EsClient {
             Log.sysLogger.info("create index type:{} SUCCESS!", TypeNameEnmu.user.name());
         }
 
-
-
-
-        Log.sysLogger.info("es client start success at:{}",host + ":" + port);
+        Log.sysLogger.info("connect es client success es.host: {}",host + ":" + port);
         start = true;
     }
 

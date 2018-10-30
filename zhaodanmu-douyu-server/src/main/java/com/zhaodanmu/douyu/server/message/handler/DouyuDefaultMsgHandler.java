@@ -1,7 +1,7 @@
 package com.zhaodanmu.douyu.server.message.handler;
 
 
-import com.zhaodanmu.core.common.Log;
+import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;

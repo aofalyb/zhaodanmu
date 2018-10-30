@@ -1,8 +1,8 @@
 package com.zhaodanmu.douyu.server;
 
 import com.zhaodanmu.core.common.Listener;
-import com.zhaodanmu.core.common.Log;
-import com.zhaodanmu.core.util.PropertiesUtil;
+import com.zhaodanmu.common.utils.Log;
+import com.zhaodanmu.common.utils.PropertiesUtil;
 import com.zhaodanmu.persistence.elasticsearch.EsClient;
 
 public class Main {
@@ -10,27 +10,23 @@ public class Main {
     public static void main(String[] args) {
 
         System.setProperty("io.netty.noUnsafe","false");
-        PropertiesUtil.load("douyu.properties");
-        String roomsArray = PropertiesUtil.getValue("rooms").trim();
-        String[] rooms = roomsArray.split(",");
-
-        EsClient.getInstance().init(PropertiesUtil.getValue("es.host"),Integer.parseInt(PropertiesUtil.getValue("es.port")));
-
-        for (int i = 0; i < rooms.length; i++) {
-            DouyuCrawlerClient douyuCrawlerClient = new DouyuCrawlerClient(rooms[i]);
+        String[] roomsArray = CC.rooms;
+        EsClient.getInstance().init(CC.esHost,CC.esPort);
+        for (int i = 0; i < roomsArray.length; i++) {
+            DouyuCrawlerClient douyuCrawlerClient = new DouyuCrawlerClient(roomsArray[i]);
             douyuCrawlerClient.doStart();
         }
 
-        DouyuHttpServer douyuServer = new DouyuHttpServer(8088,"127.0.0.1");
+        DouyuHttpServer douyuServer = new DouyuHttpServer(CC.httpPort,CC.httpHost);
         douyuServer.start(new Listener() {
             @Override
             public void onSuccess(Object... args) {
-
+                Log.sysLogger.info("http server start success,host&port: [{}]",CC.httpHost + ":" + CC.httpPort);
             }
 
             @Override
             public void onFailure(Throwable cause) {
-                cause.printStackTrace();
+                Log.sysLogger.error("http server start failed,host&port: [{}]",CC.httpHost + ":" + CC.httpPort,cause);
             }
         });
 
