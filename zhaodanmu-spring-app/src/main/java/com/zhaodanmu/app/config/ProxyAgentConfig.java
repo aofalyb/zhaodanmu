@@ -1,6 +1,7 @@
 package com.zhaodanmu.app.config;
 
 import com.alibaba.fastjson.JSON;
+import com.zhaodanmu.app.CC;
 import com.zhaodanmu.app.api.IDouyuSearchService;
 import com.zhaodanmu.app.aspect.RemoteInvoke;
 import com.zhaodanmu.common.utils.Log;
@@ -41,18 +42,42 @@ public class ProxyAgentConfig {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 RemoteInvoke remoteInvoke = method.getAnnotation(RemoteInvoke.class);
+                String methodName = method.getName();
+                String requestMapping = remoteInvoke.requestMapping();
+                String returnClass = method.getReturnType().getName();
+                Log.httpLogger.debug("invoke method: {},requestMapping: {},arg: {}",methodName,requestMapping,args);
                 if(remoteInvoke == null) {
                     Log.httpLogger.error("annotation @RemoteInvoke not found, method: {}",method.toGenericString());
                 }
 
-                return "hello";
+                String respJson = null;
+                final String uri = "http://" + CC.danmuServerHost + "/" + requestMapping;
+                try {
+                    respJson = postJSON(uri, args[0]);
+                } catch (Exception e) {
+                    Log.httpLogger.error("post uri: {},args: {}",uri,args,e);
+                    throw new RuntimeException(e);
+                }
+
+                Object object;
+                if(returnClass.equals("java.util.Map")) {
+                    object = JSON.parseObject(respJson,method.getGenericReturnType());
+
+                } else if(returnClass.equals("java.util.List")) {
+                    //解析泛型
+                    object = JSON.parseObject(respJson,method.getGenericReturnType());
+                } else {
+                    object = JSON.parseObject(respJson, Class.forName(returnClass));
+                }
+
+                return object;
             }
         });
     }
 
 
 
-    private String postJSON(String url, Object json) throws IOException {
+    private String postJSON(String url, Object json) throws Exception {
 
         RequestBody body = RequestBody.create(MEDIA_JSON, JSON.toJSONString(json));
 

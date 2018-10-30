@@ -8,7 +8,7 @@ import java.util.List;
 public interface IDouyuSearchService extends Service {
 
 
-    @RemoteInvoke(requestMapping = "hhh")
+    @RemoteInvoke(requestMapping = "/danmu/search")
     List<DanmuModel> searchDouyuDanmu(DouyuDanmuQuery query);
 
 }

@@ -15,7 +15,7 @@ public class Main {
         System.setProperty("io.netty.noUnsafe","false");
         String[] roomsArray = CC.rooms;
         PersistenceService esClient = new EsClient();
-        esClient.init(CC.esHost,CC.esPort);
+        //esClient.init(CC.esHost,CC.esPort);
         for (int i = 0; i < roomsArray.length; i++) {
             DouyuCrawlerClient douyuCrawlerClient = new DouyuCrawlerClient(roomsArray[i],esClient);
             douyuCrawlerClient.sync();

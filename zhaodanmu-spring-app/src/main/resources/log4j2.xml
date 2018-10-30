@@ -6,8 +6,8 @@
         <property name="enable_log_location">false</property>
         <!-- 应用名 -->
         <property name="logstack.application.name">douyu</property>
-        <property name="logstack.client.id">crawler-server</property>
-        <property name="vmid">douyu_danmu-server</property>
+        <property name="logstack.client.id">app</property>
+        <property name="vmid">douyu_danmu-app</property>
         <!-- 日志输出目录 -->
         <property name="LOG_HOME">logs/${logstack.client.id}</property>
 
