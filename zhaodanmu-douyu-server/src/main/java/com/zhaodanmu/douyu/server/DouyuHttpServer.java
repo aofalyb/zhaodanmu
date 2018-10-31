@@ -50,6 +50,11 @@ public class DouyuHttpServer extends NettyServer {
     }
 
 
+    @Override
+    protected int getWorkThreadNum() {
+        return 5;
+    }
+
     public void sync() {
         final CountDownLatch lock = new CountDownLatch(1);
         start(new Listener() {

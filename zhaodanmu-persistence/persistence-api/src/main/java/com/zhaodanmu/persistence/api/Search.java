@@ -9,6 +9,7 @@ public interface Search {
 
     String getIndex();
 
-    String getN();
+    String getKey();
 
+    String getKeyWord();
 }

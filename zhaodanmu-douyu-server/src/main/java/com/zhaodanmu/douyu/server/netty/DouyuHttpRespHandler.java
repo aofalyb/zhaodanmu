@@ -96,7 +96,7 @@ public class DouyuHttpRespHandler extends ChannelInboundHandlerAdapter {
             if(result.success()) {
                 return new Response(result.getData());
             } else {
-                return new Response(-1,result.failure().getMessage());
+                return new Response(-1,result.getDesc());
             }
 
         }

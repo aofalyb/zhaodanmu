@@ -20,13 +20,17 @@
         <module>persistence-douyu-elasticsearch</module>
     </modules>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>com.zhaodanmu</groupId>
+            <artifactId>zhaodanmu-cmomon</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.zhaodanmu</groupId>
-                <artifactId>zhaodanmu-cmomon</artifactId>
-                <version>1.0.0</version>
-            </dependency>
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>transport</artifactId>

@@ -1,5 +1,7 @@
 package com.zhaodanmu.persistence.api;
 
+import com.zhaodanmu.common.PageInfo;
+
 import java.util.List;
 
 /**
@@ -17,7 +19,7 @@ public interface PersistenceService {
 
     void batchInsert(boolean async,List<Model> models);
 
-    String search(Search search);
+    PageInfo search(Search search);
 
     void shutdown(Object...args);
 }

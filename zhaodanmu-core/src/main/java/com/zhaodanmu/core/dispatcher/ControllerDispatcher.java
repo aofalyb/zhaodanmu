@@ -1,6 +1,7 @@
 package com.zhaodanmu.core.dispatcher;
 
 import com.zhaodanmu.common.URI;
+import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.common.Result;
 import com.zhaodanmu.core.controller.Controller;
 
@@ -18,11 +19,17 @@ public class ControllerDispatcher {
     public Result dispatch(URI uri, String body) {
         Controller controller = controllerMap.get(uri.getPath());
 
+        if(controller == null) {
+            Log.httpLogger.debug("404 not found: {}",uri);
+            return new MappingResult(false,null,"404 not found: /" + uri.getPath(),null);
+        }
+
         try {
             Object handle = controller.handle(uri, body);
             return new MappingResult(handle);
         } catch (Exception e) {
-            return new MappingResult(false,null,e);
+            Log.sysLogger.error("handle failed,uri:{}",uri,e);
+            return new MappingResult(false,null,"unknown error",e);
         }
 
     }
