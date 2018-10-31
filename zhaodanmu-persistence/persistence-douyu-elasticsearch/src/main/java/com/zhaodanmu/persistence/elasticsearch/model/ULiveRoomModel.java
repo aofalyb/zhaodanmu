@@ -1,7 +1,7 @@
 package com.zhaodanmu.persistence.elasticsearch.model;
 
 import com.zhaodanmu.persistence.api.Model;
-import com.zhaodanmu.persistence.elasticsearch.TypeNameEnmu;
+import com.zhaodanmu.persistence.api.TypeNameEnmu;
 
 import java.util.Date;
 

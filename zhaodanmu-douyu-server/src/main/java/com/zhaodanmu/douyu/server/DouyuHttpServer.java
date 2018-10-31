@@ -2,9 +2,12 @@ package com.zhaodanmu.douyu.server;
 
 import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.common.Listener;
+import com.zhaodanmu.core.dispatcher.ControllerDispatcher;
 import com.zhaodanmu.core.netty.NettyRuntimeException;
 import com.zhaodanmu.core.netty.NettyServer;
 import com.zhaodanmu.douyu.server.netty.DouyuHttpRespHandler;
+import com.zhaodanmu.douyu.server.netty.controller.DouyuSearchController;
+import com.zhaodanmu.persistence.api.PersistenceService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
@@ -19,14 +22,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class DouyuHttpServer extends NettyServer {
 
+    private ControllerDispatcher controllerDispatcher;
 
-    public DouyuHttpServer(int port, String host) {
+    private PersistenceService persistenceService;
+
+    public DouyuHttpServer(int port, String host, PersistenceService persistenceService) {
         super(port, host);
+        this.persistenceService = persistenceService;
+        controllerDispatcher = new ControllerDispatcher();
+
+        controllerDispatcher.register(new DouyuSearchController(persistenceService));
     }
 
     @Override
     public ChannelHandler getChannelHandler() {
-        return new DouyuHttpRespHandler();
+        return new DouyuHttpRespHandler(controllerDispatcher);
     }
 
     @Override
@@ -39,11 +49,6 @@ public class DouyuHttpServer extends NettyServer {
         return new HttpResponseEncoder();
     }
 
-    @Override
-    protected void initOptions(ServerBootstrap b) {
-        super.initOptions(b);
-        b.childOption(ChannelOption.SO_KEEPALIVE, true);
-    }
 
     public void sync() {
         final CountDownLatch lock = new CountDownLatch(1);

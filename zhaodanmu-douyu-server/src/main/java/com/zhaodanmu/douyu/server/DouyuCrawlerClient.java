@@ -3,7 +3,7 @@ package com.zhaodanmu.douyu.server;
 
 import com.zhaodanmu.core.common.Listener;
 import com.zhaodanmu.common.utils.Log;
-import com.zhaodanmu.core.message.handler.MessageHandlerDispatcher;
+import com.zhaodanmu.core.dispatcher.MessageHandlerDispatcher;
 import com.zhaodanmu.core.netty.*;
 import com.zhaodanmu.douyu.server.message.DouyuLoginReqMessage;
 import com.zhaodanmu.douyu.server.message.handler.*;
@@ -157,7 +157,7 @@ public class DouyuCrawlerClient extends NettyClient {
             while (!connect()) {
                 retryTimes.incrementAndGet();
                 Log.sysLogger.warn("trying reconnect conn-rid={}, retry times={}.",rid,retryTimes.get());
-                Log.sysLogger.warn("reconnect conn-rid={} time out,wait a second",rid);
+                Log.sysLogger.warn("reconnect conn-rid={} time out,wait a second...",rid);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

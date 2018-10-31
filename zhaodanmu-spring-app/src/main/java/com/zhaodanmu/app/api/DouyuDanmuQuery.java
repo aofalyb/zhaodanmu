@@ -1,5 +1,6 @@
 package com.zhaodanmu.app.api;
 
+
 public class DouyuDanmuQuery implements Query {
 
     private Long uid;

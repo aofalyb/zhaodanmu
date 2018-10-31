@@ -12,6 +12,7 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.logging.log4j.Logger;
 
@@ -215,6 +216,7 @@ public abstract class NettyServer {
     protected void initPipeline(ChannelPipeline pipeline) {
         pipeline.addLast("decoder", getDecoder());
         pipeline.addLast("encoder", getEncoder());
+        pipeline.addLast("aggregator", new HttpObjectAggregator(100 * 1024));
         pipeline.addLast("handler", getChannelHandler());
     }
 

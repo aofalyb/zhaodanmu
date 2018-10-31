@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestControllerAdvice
 public class GlobalDefultExceptionHandler {
-    //声明要捕获的异常
     @ExceptionHandler(Exception.class)
     public Response defaultExceptionHandler(HttpServletRequest request, Exception e) {
         Log.sysLogger.error("",e);

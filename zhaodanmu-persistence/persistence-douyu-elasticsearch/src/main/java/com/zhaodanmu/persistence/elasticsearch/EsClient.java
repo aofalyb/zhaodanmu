@@ -3,8 +3,7 @@ package com.zhaodanmu.persistence.elasticsearch;
 import com.alibaba.fastjson.JSON;
 import com.zhaodanmu.common.thread.NamedPoolThreadFactory;
 import com.zhaodanmu.common.utils.Log;
-import com.zhaodanmu.persistence.api.Model;
-import com.zhaodanmu.persistence.api.PersistenceService;
+import com.zhaodanmu.persistence.api.*;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
@@ -14,6 +13,8 @@ import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -21,20 +22,18 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class EsClient implements PersistenceService {
-
-
-    private volatile static EsClient esClient;
 
     private static TransportClient client;
 
@@ -387,6 +386,25 @@ public class EsClient implements PersistenceService {
 
     }
 
+    @Override
+    public String search(Search search) {
+
+        QueryBuilder queryBuilder = QueryBuilders.termQuery("nn",search.getN());
+        SearchResponse response = client.prepareSearch(search.getIndex())
+                .setTypes(search.getType())
+                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                .setQuery(queryBuilder)
+                .execute()
+                .actionGet();
+        List result = new ArrayList();
+        for (SearchHit hit:response.getHits().getHits()) {
+            Map sourceMap = hit.getSourceAsMap();
+            result.add(sourceMap);
+        }
+
+
+        return JSON.toJSONString(result);
+    }
 
 
     @Override

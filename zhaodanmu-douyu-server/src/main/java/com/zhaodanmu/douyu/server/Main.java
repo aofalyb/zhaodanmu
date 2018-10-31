@@ -15,12 +15,12 @@ public class Main {
         System.setProperty("io.netty.noUnsafe","false");
         String[] roomsArray = CC.rooms;
         PersistenceService esClient = new EsClient();
-        //esClient.init(CC.esHost,CC.esPort);
+        esClient.init(CC.esHost,CC.esPort);
         for (int i = 0; i < roomsArray.length; i++) {
             DouyuCrawlerClient douyuCrawlerClient = new DouyuCrawlerClient(roomsArray[i],esClient);
             douyuCrawlerClient.sync();
         }
-        DouyuHttpServer douyuServer = new DouyuHttpServer(CC.httpPort,CC.httpHost);
+        DouyuHttpServer douyuServer = new DouyuHttpServer(CC.httpPort,CC.httpHost,esClient);
         douyuServer.sync();
         Log.sysLogger.info("======================================");
         Log.sysLogger.info("======================================");

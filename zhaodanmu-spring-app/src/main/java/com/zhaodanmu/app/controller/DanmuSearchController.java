@@ -14,14 +14,14 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 @RestController
-@RequestMapping("/douyu/danmu")
+@RequestMapping("/douyu")
 public class DanmuSearchController {
 
 
     @Autowired
     private IDouyuSearchService douyuSearchService;
 
-    @PostMapping("/_q")
+    @PostMapping("/search")
     public Response search(@RequestBody DouyuDanmuQuery query) {
 
         String keyword = query.getNn();

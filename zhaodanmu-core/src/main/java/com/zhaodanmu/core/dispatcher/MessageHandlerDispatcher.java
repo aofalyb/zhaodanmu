@@ -1,7 +1,8 @@
-package com.zhaodanmu.core.message.handler;
+package com.zhaodanmu.core.dispatcher;
 
 
 import com.zhaodanmu.common.utils.Log;
+import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.core.message.Message;
 
@@ -43,7 +44,7 @@ public class MessageHandlerDispatcher {
 
     public boolean dispatch(Connection connection,Message message) {
         Message decodeMessage = message.decodeBody();
-        echoTPS();
+        //echoTPS();
         IMessageHandler handler = getHandler(decodeMessage.getMessageType());
         if(handler == null) {
             handler = getDefaultHandler();

@@ -6,10 +6,8 @@ import com.zhaodanmu.core.util.ClientHolder;
 import com.zhaodanmu.douyu.server.DouyuCrawlerClient;
 import com.zhaodanmu.douyu.server.message.DouyuLoginReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
-import com.zhaodanmu.douyu.server.message.handler.*;
-import com.zhaodanmu.core.message.handler.MessageHandlerDispatcher;
+import com.zhaodanmu.core.dispatcher.MessageHandlerDispatcher;
 import com.zhaodanmu.douyu.server.protocol.DouyuPacket;
-import com.zhaodanmu.persistence.api.PersistenceService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 

@@ -17,5 +17,7 @@ public interface PersistenceService {
 
     void batchInsert(boolean async,List<Model> models);
 
+    String search(Search search);
+
     void shutdown(Object...args);
 }
