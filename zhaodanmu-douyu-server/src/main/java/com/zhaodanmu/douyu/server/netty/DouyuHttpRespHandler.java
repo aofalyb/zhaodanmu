@@ -52,6 +52,11 @@ public class DouyuHttpRespHandler extends ChannelInboundHandlerAdapter {
             respByte.writeBytes(str.getBytes());
             HttpResponse response = new DefaultFullHttpResponse(httpRequest.protocolVersion(), HttpResponseStatus.OK, respByte);
             response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
+            //允許跨域
+            response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN,"*");
+            response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS,"Origin, X-Requested-With, Content-Type, Accept");
+            response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS,"GET,POST");
+
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         }
 
