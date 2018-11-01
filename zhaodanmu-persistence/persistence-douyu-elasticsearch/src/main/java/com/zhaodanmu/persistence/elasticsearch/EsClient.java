@@ -398,6 +398,7 @@ public class EsClient implements PersistenceService {
                 .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                 .setQuery(queryBuilder)
                 .addSort("t", SortOrder.DESC)
+                .setFrom(search.from()).setSize(10)
                 .execute()
                 .actionGet();
         SearchHits hits = response.getHits();

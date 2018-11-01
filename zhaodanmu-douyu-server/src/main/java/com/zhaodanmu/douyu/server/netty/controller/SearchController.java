@@ -16,11 +16,11 @@ import java.util.List;
 /**
  * Created by Administrator on 2018/10/31.
  */
-public class DouyuSearchController implements Controller {
+public class SearchController implements Controller {
 
     private PersistenceService persistenceService;
 
-    public DouyuSearchController(PersistenceService persistenceService) {
+    public SearchController(PersistenceService persistenceService) {
         this.persistenceService = persistenceService;
     }
 
@@ -39,6 +39,8 @@ public class DouyuSearchController implements Controller {
         } catch (UnsupportedEncodingException e) {
             return null;
         }
+
+        String from = uri.getParameter("from");
 
         PageInfo search = persistenceService.search(new Search() {
             @Override
@@ -59,6 +61,11 @@ public class DouyuSearchController implements Controller {
             @Override
             public String getKeyWord() {
                 return keyWord;
+            }
+
+            @Override
+            public int from() {
+                return from == null ? 0 : Integer.parseInt(from);
             }
         });
 

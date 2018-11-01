@@ -5,6 +5,8 @@ package com.zhaodanmu.persistence.api;
  */
 public interface Search {
 
+    int from();
+
     String getType();
 
     String getIndex();
