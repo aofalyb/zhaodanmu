@@ -20,6 +20,7 @@ public interface CC {
     String httpHost = properties.getProperty("http.host").trim();
     int httpPort = Integer.parseInt(properties.getProperty("http.port").trim());
 
-
+    String redisHost = properties.getProperty("redis.host").trim();
+    int redisPort = Integer.parseInt(properties.getProperty("redis.port").trim());
 
 }
