@@ -247,7 +247,7 @@ public abstract class NettyServer {
     }
 
     protected int getWorkThreadNum() {
-        return 0;
+        return 1;
     }
 
     protected String getBossThreadName() {
@@ -259,7 +259,7 @@ public abstract class NettyServer {
     }
 
     protected int getIoRate() {
-        return 1;
+        return 100;
     }
 
     public EventLoopGroup getBossGroup() {

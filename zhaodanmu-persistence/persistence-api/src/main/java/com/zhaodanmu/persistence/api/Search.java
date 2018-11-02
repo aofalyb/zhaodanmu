@@ -5,10 +5,13 @@ package com.zhaodanmu.persistence.api;
  */
 public interface Search {
 
+    int from();
+
     String getType();
 
     String getIndex();
 
-    String getN();
+    String getKey();
 
+    String getKeyWord();
 }

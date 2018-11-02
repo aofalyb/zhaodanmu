@@ -6,11 +6,10 @@ import com.zhaodanmu.core.dispatcher.ControllerDispatcher;
 import com.zhaodanmu.core.netty.NettyRuntimeException;
 import com.zhaodanmu.core.netty.NettyServer;
 import com.zhaodanmu.douyu.server.netty.DouyuHttpRespHandler;
-import com.zhaodanmu.douyu.server.netty.controller.DouyuSearchController;
+import com.zhaodanmu.douyu.server.netty.controller.SearchController;
+import com.zhaodanmu.douyu.server.netty.controller.UserController;
 import com.zhaodanmu.persistence.api.PersistenceService;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelOption;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 
@@ -31,7 +30,8 @@ public class DouyuHttpServer extends NettyServer {
         this.persistenceService = persistenceService;
         controllerDispatcher = new ControllerDispatcher();
 
-        controllerDispatcher.register(new DouyuSearchController(persistenceService));
+        controllerDispatcher.register(new SearchController(persistenceService));
+        controllerDispatcher.register(new UserController(persistenceService));
     }
 
     @Override
@@ -49,6 +49,11 @@ public class DouyuHttpServer extends NettyServer {
         return new HttpResponseEncoder();
     }
 
+
+    @Override
+    protected int getWorkThreadNum() {
+        return 5;
+    }
 
     public void sync() {
         final CountDownLatch lock = new CountDownLatch(1);

@@ -21,19 +21,18 @@ public class DanmuSearchController {
     @Autowired
     private IDouyuSearchService douyuSearchService;
 
-    @PostMapping("/search")
-    public Response search(@RequestBody DouyuDanmuQuery query) {
+    @GetMapping("/search")
+    public Response search(String key,String keyWord) {
 
-        String keyword = query.getNn();
-        if(Objects.isNull(keyword)) {
+        if(Objects.isNull(keyWord)) {
             return new Response(-1,"请输入你想要查询的用户昵称");
         }
 
-        if(keyword.contains("*") || keyword.contains("?")) {
+        if(keyWord.contains("*") || keyWord.contains("?")) {
             return new Response(-2,"不支持的特殊符号'* ?'");
         }
 
-        List<DanmuModel> danmuModels = douyuSearchService.searchDouyuDanmu(query);
+        List<DanmuModel> danmuModels = douyuSearchService.searchDouyuDanmu(new DouyuDanmuQuery(key,keyWord));
         return new Response(danmuModels);
     }
 

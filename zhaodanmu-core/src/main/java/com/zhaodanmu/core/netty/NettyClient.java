@@ -84,7 +84,7 @@ public abstract class NettyClient {
     protected abstract ChannelHandler getEncoder();
 
     protected int getIoRate() {
-        return 2;
+        return 100;
     }
 
     protected int getWorkThreadNum() {

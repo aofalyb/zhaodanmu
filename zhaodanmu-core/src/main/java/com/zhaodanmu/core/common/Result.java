@@ -11,4 +11,9 @@ public interface Result {
 
     Throwable failure();
 
+    default String getDesc () {
+
+        return failure().getMessage();
+    }
+
 }

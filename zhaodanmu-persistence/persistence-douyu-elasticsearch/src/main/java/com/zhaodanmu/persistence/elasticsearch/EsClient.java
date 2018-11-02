@@ -1,6 +1,7 @@
 package com.zhaodanmu.persistence.elasticsearch;
 
 import com.alibaba.fastjson.JSON;
+import com.zhaodanmu.common.PageInfo;
 import com.zhaodanmu.common.thread.NamedPoolThreadFactory;
 import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.persistence.api.*;
@@ -25,6 +26,8 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.IOException;
@@ -387,23 +390,31 @@ public class EsClient implements PersistenceService {
     }
 
     @Override
-    public String search(Search search) {
+    public PageInfo search(Search search) {
 
-        QueryBuilder queryBuilder = QueryBuilders.termQuery("nn",search.getN());
+        QueryBuilder queryBuilder = QueryBuilders.termQuery(search.getKey(),search.getKeyWord());
         SearchResponse response = client.prepareSearch(search.getIndex())
                 .setTypes(search.getType())
                 .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                 .setQuery(queryBuilder)
+                .addSort("t", SortOrder.DESC)
+                .setFrom(search.from()).setSize(10)
                 .execute()
                 .actionGet();
-        List result = new ArrayList();
-        for (SearchHit hit:response.getHits().getHits()) {
-            Map sourceMap = hit.getSourceAsMap();
-            result.add(sourceMap);
+        SearchHits hits = response.getHits();
+        PageInfo pageInfo = null;
+        if(hits.getTotalHits() > 0) {
+            List result = new ArrayList((int) hits.getTotalHits());
+            for (SearchHit hit: hits.getHits()) {
+                Map sourceMap = hit.getSourceAsMap();
+                result.add(sourceMap);
+            }
+            pageInfo = new PageInfo((int)hits.getTotalHits(),result.size(),result);
+        } else {
+            pageInfo = new PageInfo(0,0,Collections.emptyList());
         }
 
-
-        return JSON.toJSONString(result);
+        return pageInfo;
     }
 
 

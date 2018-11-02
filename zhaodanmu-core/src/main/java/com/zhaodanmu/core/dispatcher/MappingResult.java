@@ -13,6 +13,8 @@ public class MappingResult implements Result {
 
     private Throwable throwable;
 
+    private String descZh;
+
     @Override
     public boolean success() {
         return success;
@@ -28,9 +30,18 @@ public class MappingResult implements Result {
         return throwable;
     }
 
-    public MappingResult(boolean success ,Object data, Throwable throwable) {
+    @Override
+    public String getDesc() {
+        if(descZh == null && failure() != null) {
+            return failure().getMessage();
+        }
+        return descZh;
+    }
+
+    public MappingResult(boolean success , Object data,String descZh, Throwable throwable) {
         this.data = data;
         this.success = success;
+        this.descZh = descZh;
         this.throwable = throwable;
     }
 
@@ -38,6 +49,8 @@ public class MappingResult implements Result {
         this.data = data;
         this.success = true;
     }
+
+
 
     public MappingResult(Throwable throwable) {
         this.throwable = throwable;
