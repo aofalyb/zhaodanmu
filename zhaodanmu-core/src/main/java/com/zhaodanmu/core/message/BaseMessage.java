@@ -5,7 +5,7 @@ import com.zhaodanmu.core.protocol.Packet;
 import io.netty.channel.ChannelFuture;
 
 
-public abstract class BaseMessage implements Message {
+public abstract class BaseMessage<T> implements Message {
 
     protected Packet packet;
     protected Connection connection;
@@ -30,5 +30,10 @@ public abstract class BaseMessage implements Message {
     public ChannelFuture send() {
         encodeBody();
         return connection.send(packet);
+    }
+
+    @Override
+    public T getData() {
+        return null;
     }
 }

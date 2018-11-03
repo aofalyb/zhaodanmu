@@ -6,7 +6,6 @@ import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
 import com.zhaodanmu.persistence.api.PersistenceService;
-import com.zhaodanmu.persistence.elasticsearch.EsClient;
 import com.zhaodanmu.persistence.elasticsearch.model.DouyuESModel;
 import com.zhaodanmu.persistence.elasticsearch.model.ULiveRoomModel;
 
@@ -25,7 +24,7 @@ public class DouyuChatMsgHandler implements IMessageHandler<DouyuMessage> {
 
     @Override
     public boolean handle(Connection connection, DouyuMessage message) {
-        Map<String, String> attributes = message.getAttributes();
+        Map<String, String> attributes = message.getData();
 
         DouyuESModel chatMessage = null;
         ULiveRoomModel uLiveRoomModel = null;

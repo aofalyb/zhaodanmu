@@ -20,7 +20,7 @@ public class DouyuDefaultMsgHandler implements IMessageHandler<DouyuMessage> {
 
     @Override
     public boolean handle(Connection connection, DouyuMessage message) {
-        Map<String, String> attributes = message.getAttributes();
+        Map<String, String> attributes = message.getData();
         Log.defLogger.debug("un-handled message: {}",attributes);
         return false;
     }

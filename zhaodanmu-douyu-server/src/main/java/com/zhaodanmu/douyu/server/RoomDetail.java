@@ -1,6 +1,8 @@
 package com.zhaodanmu.douyu.server;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RoomDetail {
 
@@ -35,6 +37,7 @@ public class RoomDetail {
         private String start_time;
         private String cate_name;
         private int online;
+        private Map<String,GiftEntity> giftMap;
 
         public void setRoom_id(String room_id) {
             this.room_id = room_id;
@@ -148,6 +151,16 @@ public class RoomDetail {
             return online;
         }
 
+        public GiftEntity getGiftInfo(long giftId) {
+            if(giftMap != null) {
+                return giftMap.get(String.valueOf(giftId));
+            }
+            giftMap = getGift().stream().collect(Collectors.toMap((GiftEntity::getId), a -> a));
+            return getGiftInfo(giftId);
+        }
+
+
+
         public class GiftEntity {
             /**
              * gx : 20000
@@ -242,4 +255,8 @@ public class RoomDetail {
                 return desc;
             }
         }
+
+
+
+
 }

@@ -16,7 +16,7 @@ public class Main {
         System.setProperty("io.netty.noUnsafe","false");
 
         PersistenceService esClient = new EsClient();
-        //esClient.init(CC.esHost,CC.esPort);
+        esClient.init(CC.esHost,CC.esPort);
 
         RedisServer redisServer = new RedisServer(CC.redisHost,CC.redisPort);
         //redisServer.sync();

@@ -2,7 +2,7 @@ package com.zhaodanmu.douyu.server.netty;
 
 import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.netty.*;
-import com.zhaodanmu.core.util.ClientHolder;
+import com.zhaodanmu.douyu.server.util.ClientHolder;
 import com.zhaodanmu.douyu.server.DouyuCrawlerClient;
 import com.zhaodanmu.douyu.server.message.DouyuLoginReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
@@ -23,9 +23,9 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
 
     private ConnectionManager connectionManager;
 
-    public DouyuConnClientChannelHandler(String rid,ConnectionManager connectionManager,MessageHandlerDispatcher messageHandlerDispatcher) {
+    public DouyuConnClientChannelHandler(String rid,MessageHandlerDispatcher messageHandlerDispatcher) {
         this.rid = rid;
-        this.connectionManager = connectionManager;
+        this.connectionManager = new ClientConnectionManager();
         this.messageHandlerDispatcher = messageHandlerDispatcher;
     }
     @Override
@@ -54,7 +54,7 @@ public class DouyuConnClientChannelHandler extends ChannelInboundHandlerAdapter 
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         connectionManager.removeAndClose(connection);
         Log.sysLogger.info("channel:{} is inactive now, try reconnect.",ctx.channel());
-        DouyuCrawlerClient nettyClient = (DouyuCrawlerClient) ClientHolder.get(connection.getRid());
+        DouyuCrawlerClient nettyClient = ClientHolder.get(connection.getRid());
         nettyClient.reConnect();
     }
 

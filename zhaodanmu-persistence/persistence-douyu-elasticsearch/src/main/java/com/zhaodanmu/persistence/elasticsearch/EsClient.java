@@ -43,7 +43,6 @@ public class EsClient implements PersistenceService {
     private volatile boolean start = false;
     private static Object lock = new Object();
 
-    private static BlockingQueue<BulkResponse> waitCheckQueue = new LinkedBlockingQueue<>();
     private static BlockingQueue<Model> bufferedModelQueue = new LinkedBlockingQueue<>();
 
     private static final int THREAD_COUNT = 1;
@@ -57,13 +56,6 @@ public class EsClient implements PersistenceService {
             0L, TimeUnit.MILLISECONDS,
             insertQueue,new NamedPoolThreadFactory("es-writer"));
 
-    static {
-
-        //用一个线程轮训检查是否有错误的写入
-        CheckBulkResponseFailThread checkWriteFailThread = new CheckBulkResponseFailThread("check-es-write-fail");
-        checkWriteFailThread.setDaemon(true);
-        checkWriteFailThread.start();
-    }
 
     @Override
     public void init(Object...args) {
@@ -367,7 +359,11 @@ public class EsClient implements PersistenceService {
                 BulkResponse bulkItemResponses = bulkRequestBuilder.get();
                 long _e = System.currentTimeMillis();
                 int queueSize = insertQueue.size();
-                Log.defLogger.info("es bufferedInsert cost time: {} ms, hasFailures: {}, waitInsert: {}",_e-_s,bulkItemResponses.hasFailures(), queueSize);
+                if((_e-_s) > 100) {
+                    Log.defLogger.warn("busy disk:es insert: {} rows ,cost time: {} ms, hasFailures: {}, waitInsert: {}",models.size(),_e-_s,bulkItemResponses.hasFailures(), queueSize);
+                } else {
+                    Log.defLogger.debug("es insert: {} rows , cost time: {} ms, hasFailures: {}, waitInsert: {}",models.size(),_e-_s,bulkItemResponses.hasFailures(), queueSize);
+                }
                 //动态调整
                 if(queueSize > dangerInstertQueueSize) {
                     if(modelBufferSize < originModelBufferSize * 100) {
@@ -379,11 +375,6 @@ public class EsClient implements PersistenceService {
                     Log.defLogger.warn("es dynamic regulation 'modelBufferSize' ,waitInsert:{}, new value: {}",queueSize,modelBufferSize);
                 }
 
-                try {
-                    waitCheckQueue.put(bulkItemResponses);
-                } catch (InterruptedException e) {
-
-                }
             }
         });
 
@@ -440,33 +431,6 @@ public class EsClient implements PersistenceService {
         return start;
     }
 
-    private static class CheckBulkResponseFailThread extends Thread {
-
-        public CheckBulkResponseFailThread(String name) {
-            super(name);
-        }
-
-        @Override
-        public void run() {
-
-            BulkResponse bulkResponse = null;
-            try {
-                while ((bulkResponse = waitCheckQueue.take()) != null) {
-                        if(bulkResponse.hasFailures()) {
-                            Iterator<BulkItemResponse> iterator = bulkResponse.iterator();
-                            while (iterator.hasNext()) {
-                                BulkItemResponse bulkItemResponse = iterator.next();
-                                //Log.defLogger.error("#["+System.currentTimeMillis()+"]"+"["+bulkItemResponse+"]");
-                            }
-
-                        }
-                }
-            } catch (InterruptedException e) {
-                //Log.defLogger.error("waitCheckQueue take error.",e);
-            }
-
-        }
-    }
 
 
 

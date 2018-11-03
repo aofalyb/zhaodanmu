@@ -10,7 +10,7 @@ import com.zhaodanmu.douyu.server.message.handler.*;
 import com.zhaodanmu.douyu.server.netty.DouyuConnClientChannelHandler;
 import com.zhaodanmu.douyu.server.netty.codec.DouyuPacketDecoder;
 import com.zhaodanmu.douyu.server.netty.codec.DouyuPacketEncoder;
-import com.zhaodanmu.core.util.ClientHolder;
+import com.zhaodanmu.douyu.server.util.ClientHolder;
 import com.zhaodanmu.persistence.api.PersistenceService;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -28,7 +28,6 @@ public class DouyuCrawlerClient extends NettyClient {
     private String rid;
     private Lock lock = new ReentrantLock();
     private Condition loginSuccessCondition = lock.newCondition();
-    private ConnectionManager connectionManager;
 
     private RoomDetail roomDetail;
 
@@ -40,9 +39,11 @@ public class DouyuCrawlerClient extends NettyClient {
 
     private static ThreadPoolExecutor reConnectThread = new ThreadPoolExecutor(1, 1,
                                       0L, TimeUnit.MILLISECONDS,
-                                      new LinkedBlockingQueue<Runnable>());
+                                      new LinkedBlockingQueue<>());
 
-    private static MessageHandlerDispatcher messageHandlerDispatcher;
+    private MessageHandlerDispatcher messageHandlerDispatcher;
+
+    private Connection connection;
 
 
 
@@ -66,25 +67,23 @@ public class DouyuCrawlerClient extends NettyClient {
     }
 
     private void initPersistence() {
-        if(messageHandlerDispatcher == null) {
-            //doStart handler
-            messageHandlerDispatcher = new MessageHandlerDispatcher();
-            //处理登录相关消息
-            messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMsgHandler(persistenceService));
-            //弹幕聊天消息(chatmsg)
-            messageHandlerDispatcher.register("chatmsg|uenter",new DouyuChatMsgHandler(persistenceService));
-            // 赠送礼物消息(dgb)
-            messageHandlerDispatcher.register("dgb",new DouyuGiveGiftsMsgHandler(persistenceService));
-            //TODO 抢到道具消息(gpbc)
-            //用户进房消息(uenter)
-            //messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler());
-            // 赠送酬劳消息(bc_buy_deserve)
-            messageHandlerDispatcher.register("bc_buy_deserve",new DouyuDeserveMsgHandler(persistenceService));
-            //被禁言消息（newblackres）
-            messageHandlerDispatcher.register("newblackres",new NewBlackMsgHandler(persistenceService));
+        //doStart handler
+        messageHandlerDispatcher = new MessageHandlerDispatcher();
+        //处理登录相关消息
+        messageHandlerDispatcher.register("loginres|loginreq",new DouyuLoginMsgHandler(persistenceService));
+        //弹幕聊天消息(chatmsg)
+        messageHandlerDispatcher.register("chatmsg|uenter",new DouyuChatMsgHandler(persistenceService));
+        // 赠送礼物消息(dgb)
+        messageHandlerDispatcher.register("dgb",new DouyuGiveGiftsMsgHandler(persistenceService));
+        //TODO 抢到道具消息(gpbc)
+        //用户进房消息(uenter)
+        //messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler());
+        // 赠送酬劳消息(bc_buy_deserve)
+        messageHandlerDispatcher.register("bc_buy_deserve",new DouyuDeserveMsgHandler(persistenceService));
+        //被禁言消息（newblackres）
+        messageHandlerDispatcher.register("newblackres",new NewBlackMsgHandler(persistenceService));
 
-            messageHandlerDispatcher.register("def",new DouyuDefaultMsgHandler(persistenceService));
-        }
+        messageHandlerDispatcher.register("def",new DouyuDefaultMsgHandler(persistenceService));
     }
 
 
@@ -108,7 +107,7 @@ public class DouyuCrawlerClient extends NettyClient {
 
     @Override
     public ChannelHandler getChannelHandler() {
-        return new DouyuConnClientChannelHandler(rid,connectionManager = new ClientConnectionManager(),messageHandlerDispatcher);
+        return new DouyuConnClientChannelHandler(rid,messageHandlerDispatcher);
     }
 
     @Override
@@ -145,9 +144,10 @@ public class DouyuCrawlerClient extends NettyClient {
         }
     }
 
-    public void release() {
+    public void release(Connection connection) {
         lock.lock();
         try {
+            this.connection = connection;
             loginSuccessCondition.signal();
         } finally {
             lock.unlock();

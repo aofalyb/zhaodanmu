@@ -1,6 +1,5 @@
 package com.zhaodanmu.core.netty;
 
-import io.netty.channel.Channel;
 
 public interface ConnectionManager {
 

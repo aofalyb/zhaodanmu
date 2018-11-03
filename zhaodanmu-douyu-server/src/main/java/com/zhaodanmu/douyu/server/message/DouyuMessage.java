@@ -9,7 +9,7 @@ import com.zhaodanmu.douyu.server.util.DouyuSerializeUtil;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DouyuMessage extends BaseMessage {
+public class DouyuMessage extends BaseMessage<Map<String,String>> {
 
     protected Map<String,String> attributes = new HashMap();
 
@@ -45,7 +45,9 @@ public class DouyuMessage extends BaseMessage {
     }
 
 
-    public Map<String, String> getAttributes() {
+
+    @Override
+    public Map<String, String> getData() {
         return attributes;
     }
 }

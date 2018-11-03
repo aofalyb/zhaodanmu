@@ -6,7 +6,7 @@ import com.zhaodanmu.core.protocol.Packet;
 import io.netty.channel.ChannelFuture;
 
 
-public interface Message {
+public interface Message<T> {
 
     ChannelFuture send();
 
@@ -20,4 +20,5 @@ public interface Message {
 
     Connection getConnection();
 
+    T getData();
 }

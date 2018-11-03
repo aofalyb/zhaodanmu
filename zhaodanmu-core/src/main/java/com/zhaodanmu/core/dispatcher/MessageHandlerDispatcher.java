@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 消息处理器分发
  */
-public class MessageHandlerDispatcher {
+public class MessageHandlerDispatcher<T extends Message> {
 
     private static final String OR = "\\|";
     private Map<String,IMessageHandler> handlerMap = new HashMap<>();
@@ -42,8 +42,10 @@ public class MessageHandlerDispatcher {
         return getHandler("def");
     }
 
-    public boolean dispatch(Connection connection,Message message) {
+    public boolean dispatch(Connection connection,T message) {
         Message decodeMessage = message.decodeBody();
+        //data DataAnalysis
+
         //echoTPS();
         IMessageHandler handler = getHandler(decodeMessage.getMessageType());
         if(handler == null) {

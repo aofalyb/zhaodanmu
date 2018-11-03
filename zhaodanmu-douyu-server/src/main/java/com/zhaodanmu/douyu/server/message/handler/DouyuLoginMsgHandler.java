@@ -8,7 +8,7 @@ import com.zhaodanmu.core.netty.ConnectionState;
 import com.zhaodanmu.douyu.server.DouyuCrawlerClient;
 import com.zhaodanmu.douyu.server.message.DouyuJoinGroupReqMessage;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
-import com.zhaodanmu.core.util.ClientHolder;
+import com.zhaodanmu.douyu.server.util.ClientHolder;
 import com.zhaodanmu.persistence.api.PersistenceService;
 
 import java.util.Objects;
@@ -28,7 +28,7 @@ public class DouyuLoginMsgHandler implements IMessageHandler<DouyuMessage> {
             //login success then join group
             joinGroup(connection);
         }
-        return false;
+        return true;
     }
 
 
@@ -40,8 +40,8 @@ public class DouyuLoginMsgHandler implements IMessageHandler<DouyuMessage> {
                     if(future.isSuccess()) {
                         connection.state = ConnectionState.CONNECTED;
                         Log.sysLogger.info("login douyu.properties-chat room: {} success.",connection.getRid());
-                        DouyuCrawlerClient nettyClient = (DouyuCrawlerClient) ClientHolder.get(connection.getRid());
-                        nettyClient.release();
+                        DouyuCrawlerClient nettyClient = ClientHolder.get(connection.getRid());
+                        nettyClient.release(connection);
                     } else {
                      //do nothing, wait lock time out
                     }
