@@ -14,17 +14,16 @@ public class Main {
     public static void main(String[] args) {
 
         System.setProperty("io.netty.noUnsafe","false");
-        String[] roomsArray = CC.rooms;
+
         PersistenceService esClient = new EsClient();
         //esClient.init(CC.esHost,CC.esPort);
 
         RedisServer redisServer = new RedisServer(CC.redisHost,CC.redisPort);
-        redisServer.sync();
+        //redisServer.sync();
 
-        for (int i = 0; i < roomsArray.length; i++) {
-            DouyuCrawlerClient douyuCrawlerClient = new DouyuCrawlerClient(roomsArray[i],esClient);
-            douyuCrawlerClient.sync();
-        }
+        DouyuCrawlerServer douyuCrawlerServer = new DouyuCrawlerServer(esClient);
+        douyuCrawlerServer.sync();
+
         DouyuHttpServer douyuServer = new DouyuHttpServer(CC.httpPort,CC.httpHost,esClient);
         douyuServer.sync();
         Log.sysLogger.info("======================================");

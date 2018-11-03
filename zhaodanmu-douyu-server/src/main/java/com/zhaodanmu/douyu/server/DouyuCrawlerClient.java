@@ -30,6 +30,8 @@ public class DouyuCrawlerClient extends NettyClient {
     private Condition loginSuccessCondition = lock.newCondition();
     private ConnectionManager connectionManager;
 
+    private RoomDetail roomDetail;
+
     private static PersistenceService persistenceService;
     //断线重连次数
     private AtomicInteger retryTimes = new AtomicInteger(0);
@@ -60,6 +62,10 @@ public class DouyuCrawlerClient extends NettyClient {
         this.rid = rid;
         this.persistenceService = persistenceService;
         ClientHolder.hold(rid,this);
+        this.initPersistence();
+    }
+
+    private void initPersistence() {
         if(messageHandlerDispatcher == null) {
             //doStart handler
             messageHandlerDispatcher = new MessageHandlerDispatcher();
@@ -79,6 +85,15 @@ public class DouyuCrawlerClient extends NettyClient {
 
             messageHandlerDispatcher.register("def",new DouyuDefaultMsgHandler(persistenceService));
         }
+    }
+
+
+    public void setRoomDetail(RoomDetail roomDetail) {
+        this.roomDetail = roomDetail;
+    }
+
+    public RoomDetail getRoomDetail() {
+        return roomDetail;
     }
 
     @Override
