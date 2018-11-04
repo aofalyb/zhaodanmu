@@ -1,7 +1,6 @@
 package com.zhaodanmu.douyu.server.message.handler;
 
 import com.alibaba.fastjson.JSON;
-import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.message.handler.IMessageHandler;
 import com.zhaodanmu.core.netty.Connection;
 import com.zhaodanmu.core.redis.RedisManager;
@@ -11,13 +10,11 @@ import com.zhaodanmu.douyu.server.cache.UserEventCache;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
 import com.zhaodanmu.persistence.api.PersistenceService;
 import com.zhaodanmu.persistence.elasticsearch.model.ChatMessageModel;
-import com.zhaodanmu.persistence.elasticsearch.model.DouyuESModel;
 import com.zhaodanmu.persistence.elasticsearch.model.SimpinleUserModel;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DouyuChatMsgHandler implements IMessageHandler<DouyuMessage> {
 
@@ -49,25 +46,25 @@ public class DouyuChatMsgHandler implements IMessageHandler<DouyuMessage> {
             eventCache.cache(simpinleUserModel.getUid(),new UserEventCache(simpinleUserModel.getUid(),chatMessage.getTxt(),chatMessage.getRid(),chatMessage.getT()));
         }
 
-        if(redisManager.exsit(U_CHAT_RANK)) {
-            //redis 个人弹幕数排行
-            redisManager.zIncr(U_CHAT_RANK, 1.0, String.valueOf(simpinleUserModel.getUid()));
-        } else {
-            //redis 个人弹幕数排行
-            redisManager.zIncr(U_CHAT_RANK, 1.0, String.valueOf(simpinleUserModel.getUid()));
-            //设置过期时间
-            redisManager.expireAt(U_CHAT_RANK,getExpireUnixTime());
-        }
-
-        if(redisManager.exsit(R_CHAT_RANK)) {
-            //redis 房间弹幕数率
-            redisManager.zIncr(R_CHAT_RANK ,1.0, String.valueOf(simpinleUserModel.getRid()));
-        } else {
-            //redis 房间弹幕数率
-            redisManager.zIncr(R_CHAT_RANK ,1.0, String.valueOf(simpinleUserModel.getRid()));
-            //设置过期时间
-            redisManager.expireAt(R_CHAT_RANK,getExpireUnixTime());
-        }
+//        if(redisManager.exsit(U_CHAT_RANK)) {
+//            //redis 个人弹幕数排行
+//            redisManager.zIncr(U_CHAT_RANK, 1.0, String.valueOf(simpinleUserModel.getUid()));
+//        } else {
+//            //redis 个人弹幕数排行
+//            redisManager.zIncr(U_CHAT_RANK, 1.0, String.valueOf(simpinleUserModel.getUid()));
+//            //设置过期时间
+//            redisManager.expireAt(U_CHAT_RANK,getExpireUnixTime());
+//        }
+//
+//        if(redisManager.exsit(R_CHAT_RANK)) {
+//            //redis 房间弹幕数率
+//            redisManager.zIncr(R_CHAT_RANK ,1.0, String.valueOf(simpinleUserModel.getRid()));
+//        } else {
+//            //redis 房间弹幕数率
+//            redisManager.zIncr(R_CHAT_RANK ,1.0, String.valueOf(simpinleUserModel.getRid()));
+//            //设置过期时间
+//            redisManager.expireAt(R_CHAT_RANK,getExpireUnixTime());
+//        }
 
         return true;
     }

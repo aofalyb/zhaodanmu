@@ -1,5 +1,6 @@
 package com.zhaodanmu.core.dispatcher;
 
+import com.zhaodanmu.common.MyRuntimeException;
 import com.zhaodanmu.common.URI;
 import com.zhaodanmu.common.utils.Log;
 import com.zhaodanmu.core.common.Result;
@@ -29,6 +30,9 @@ public class ControllerDispatcher {
             return new MappingResult(handle);
         } catch (Exception e) {
             Log.sysLogger.error("handle failed,uri:{}",uri,e);
+            if(e instanceof MyRuntimeException) {
+                return new MappingResult(false,null,e.getMessage(),e);
+            }
             return new MappingResult(false,null,"unknown error",e);
         }
 

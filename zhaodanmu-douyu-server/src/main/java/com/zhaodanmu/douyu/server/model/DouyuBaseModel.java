@@ -112,12 +112,12 @@ public class DouyuBaseModel implements Model {
     }
 
     @Override
-    public String getMType() {
+    public String type() {
         return null;
     }
 
     @Override
-    public String getPK() {
+    public String pK() {
         return null;
     }
 }

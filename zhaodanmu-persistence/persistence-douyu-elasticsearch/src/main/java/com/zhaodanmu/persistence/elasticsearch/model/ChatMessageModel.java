@@ -62,12 +62,12 @@ public class ChatMessageModel implements Model {
     }
 
     @Override
-    public String getMType() {
+    public String type() {
         return TypeNameEnmu.danmu.name();
     }
 
     @Override
-    public String getPK() {
+    public String pK() {
         return cid;
     }
 }

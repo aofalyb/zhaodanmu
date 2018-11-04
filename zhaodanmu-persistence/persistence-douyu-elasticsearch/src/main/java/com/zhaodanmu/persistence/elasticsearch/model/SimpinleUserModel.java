@@ -87,12 +87,12 @@ public class SimpinleUserModel implements Model {
     }
 
     @Override
-    public String getMType() {
+    public String type() {
         return TypeNameEnmu.user.name();
     }
 
     @Override
-    public String getPK() {
+    public String pK() {
         return String.valueOf(uid);
     }
 }

@@ -1,6 +1,8 @@
 package com.zhaodanmu.persistence.api;
 
-public class ESException extends RuntimeException {
+import com.zhaodanmu.common.MyRuntimeException;
+
+public class ESException extends MyRuntimeException {
 
     public ESException() {
     }

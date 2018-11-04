@@ -18,7 +18,9 @@ public class Main {
         PersistenceService esClient = new EsClient();
         esClient.init(CC.esHost,CC.esPort);
 
-        RedisServer.connect(CC.redisHost,CC.redisPort);
+        //RedisServer.connect(CC.redisHost,CC.redisPort);
+
+        PropGiftConfig.init();
 
         DouyuCrawlerServer douyuCrawlerServer = new DouyuCrawlerServer(esClient);
         douyuCrawlerServer.sync();

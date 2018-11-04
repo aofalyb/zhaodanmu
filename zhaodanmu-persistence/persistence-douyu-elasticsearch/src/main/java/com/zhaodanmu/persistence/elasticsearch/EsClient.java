@@ -10,7 +10,6 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequest;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
-import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -324,9 +323,9 @@ public class EsClient implements PersistenceService {
                 for (final Model model: models) {
                     if(async) {
                         IndexRequestBuilder indexRequestBuilder = client
-                                .prepareIndex(model.getMType(), model.getMType())
+                                .prepareIndex(model.type(), model.type())
                                 .setSource(JSON.toJSONString(model), XContentType.JSON)
-                                .setId(model.getPK());
+                                .setId(model.pK());
 
                         bulkRequestBuilder.add(indexRequestBuilder.request());
                     }

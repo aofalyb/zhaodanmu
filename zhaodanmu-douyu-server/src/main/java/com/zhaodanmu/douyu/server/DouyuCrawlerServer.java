@@ -28,6 +28,7 @@ public class DouyuCrawlerServer {
             douyuCrawlerClient.setRoomDetail(checkExist(roomsArray[i]));
             douyuCrawlerClient.sync();
         }
+
     }
 
 

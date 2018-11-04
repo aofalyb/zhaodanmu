@@ -120,12 +120,12 @@ public class NewBlackresModel implements Model {
     }
 
     @Override
-    public String getMType() {
+    public String type() {
         return TypeNameEnmu.new_black.name();
     }
 
     @Override
-    public String getPK() {
+    public String pK() {
         return null;
     }
 }
