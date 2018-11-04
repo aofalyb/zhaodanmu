@@ -18,13 +18,12 @@ public class Main {
         PersistenceService esClient = new EsClient();
         esClient.init(CC.esHost,CC.esPort);
 
-        RedisServer redisServer = new RedisServer(CC.redisHost,CC.redisPort);
-        //redisServer.sync();
+        RedisServer.connect(CC.redisHost,CC.redisPort);
 
         DouyuCrawlerServer douyuCrawlerServer = new DouyuCrawlerServer(esClient);
         douyuCrawlerServer.sync();
 
-        DouyuHttpServer douyuServer = new DouyuHttpServer(CC.httpPort,CC.httpHost,esClient);
+        DouyuHttpServer douyuServer = new DouyuHttpServer(esClient);
         douyuServer.sync();
         Log.sysLogger.info("======================================");
         Log.sysLogger.info("======================================");

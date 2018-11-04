@@ -9,18 +9,11 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class RedisServer {
 
-    private String ip;
-    private int port;
-    boolean isCluster;
-
     private static RedisManager redisManager;
-    public RedisServer(String ip, int port) {
-        this.ip = ip;
-        this.port = port;
+    private RedisServer() {
     }
 
-
-    public void sync() {
+    public static void connect(String ip, int port) {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         JedisPool jedisPool = new JedisPool(jedisPoolConfig, ip, port);
         redisManager = new RedisManager(jedisPool);
@@ -38,8 +31,15 @@ public class RedisServer {
     }
 
 
-    public RedisManager getManager() {
+    public static RedisManager getManager() {
         return redisManager;
+    }
+
+
+    public static void main(String[] args) {
+        RedisServer.connect("127.0.0.1",6379);
+        RedisManager manager = RedisServer.getManager();
+        manager.zAdd("ml1",100.0,"k1");
     }
 
 

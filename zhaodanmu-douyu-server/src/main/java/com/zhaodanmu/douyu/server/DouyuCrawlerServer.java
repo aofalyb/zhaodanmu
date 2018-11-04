@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.zhaodanmu.common.exception.HttpException;
 import com.zhaodanmu.common.utils.HttpUtils;
 import com.zhaodanmu.common.utils.Log;
+import com.zhaodanmu.core.redis.RedisServer;
 import com.zhaodanmu.persistence.api.PersistenceService;
 
 
@@ -13,7 +14,8 @@ import com.zhaodanmu.persistence.api.PersistenceService;
  */
 public class DouyuCrawlerServer {
 
-    private final PersistenceService persistenceService;
+    private PersistenceService persistenceService;
+
 
     public DouyuCrawlerServer(PersistenceService persistenceService) {
        this.persistenceService = persistenceService;

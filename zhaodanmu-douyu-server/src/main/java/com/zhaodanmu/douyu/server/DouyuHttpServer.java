@@ -5,6 +5,7 @@ import com.zhaodanmu.core.common.Listener;
 import com.zhaodanmu.core.dispatcher.ControllerDispatcher;
 import com.zhaodanmu.core.netty.NettyRuntimeException;
 import com.zhaodanmu.core.netty.NettyServer;
+import com.zhaodanmu.core.redis.RedisServer;
 import com.zhaodanmu.douyu.server.netty.DouyuHttpRespHandler;
 import com.zhaodanmu.douyu.server.netty.controller.SearchController;
 import com.zhaodanmu.douyu.server.netty.controller.UserController;
@@ -25,8 +26,8 @@ public class DouyuHttpServer extends NettyServer {
 
     private PersistenceService persistenceService;
 
-    public DouyuHttpServer(int port, String host, PersistenceService persistenceService) {
-        super(port, host);
+    public DouyuHttpServer(PersistenceService persistenceService) {
+        super(CC.httpPort,CC.httpHost);
         this.persistenceService = persistenceService;
         controllerDispatcher = new ControllerDispatcher();
 

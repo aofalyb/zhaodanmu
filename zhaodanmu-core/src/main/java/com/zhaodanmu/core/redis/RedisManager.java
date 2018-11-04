@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.zhaodanmu.common.utils.Log;
 import redis.clients.jedis.*;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -319,6 +320,14 @@ public final class RedisManager {
         return toList(list, clazz);
     }
 
+    public boolean exsit(String key) {
+        return call(jedis -> jedis.exists(key), false);
+    }
+
+    public long expireAt(String key,long unixTime) {
+        return call(jedis -> jedis.pexpireAt(key,unixTime), 0L);
+    }
+
     /*********************
      * sorted set
      ********************************/
@@ -326,8 +335,16 @@ public final class RedisManager {
      * @param key
      * @param value
      */
-    public void zAdd(String key, String value) {
-        call(jedis -> jedis.zadd(key, 0, value));
+    public Long zAdd(String key, String value) {
+       return call(jedis -> jedis.zadd(key, 0, value),0L);
+    }
+
+    public Long zAdd(String list,double sorce,String menber) {
+        return call(jedis -> jedis.zadd(list, sorce, menber),0L);
+    }
+
+    public Double zIncr(String list,double sorce,String menber) {
+        return call(jedis -> jedis.zincrby(list, sorce, menber),0.0d);
     }
 
     /**

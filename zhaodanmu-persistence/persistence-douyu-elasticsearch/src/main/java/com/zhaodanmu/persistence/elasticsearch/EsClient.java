@@ -41,7 +41,6 @@ public class EsClient implements PersistenceService {
     private static TransportClient client;
 
     private volatile boolean start = false;
-    private static Object lock = new Object();
 
     private static BlockingQueue<Model> bufferedModelQueue = new LinkedBlockingQueue<>();
 
@@ -241,27 +240,8 @@ public class EsClient implements PersistenceService {
                         .startObject("t").field("type","date").endObject()
                         .startObject("rid").field("type","long").endObject()
                         .startObject("uid").field("type","long").endObject()
-                        .startObject("level").field("type","integer").endObject()
-                        .startObject("nn").field("type","keyword").endObject()
-                        //.startObject("gid").field("type","long").endObject()
-                        //.startObject("ic").field("type","keyword").endObject()
-                        //.startObject("nl").field("type","integer").endObject()
-                        //.startObject("nc").field("type","integer").endObject()
-                        //.startObject("bnn").field("type","keyword").endObject()
-                        //.startObject("bl").field("type","integer").endObject()
-                        //.startObject("brid").field("type","long").endObject()
-                        .startObject("type").field("type","keyword").endObject()
                         .startObject("txt").field("type","keyword").endObject()
-                        //.startObject("cid").field("type","keyword").endObject()
-                        //.startObject("col").field("type","integer").endObject()
-                        //.startObject("rev").field("type","integer").endObject()
-                        //.startObject("hl").field("type","integer").endObject()
-                        //.startObject("ifs").field("type","integer").endObject()
-                        .startObject("cnt").field("type","integer").endObject()
-                        .startObject("lev").field("type","integer").endObject()
-                        .startObject("gfid").field("type","long").endObject()
-                        .startObject("gfcnt").field("type","integer").endObject()
-                        .startObject("hits").field("type","integer").endObject()
+                        .startObject("cid").field("type","keyword").endObject()
                         .endObject()
                         .endObject();
 
@@ -305,9 +285,6 @@ public class EsClient implements PersistenceService {
                         .startObject("nn").field("type","keyword").endObject()
                         .startObject("ic").field("type","keyword").endObject()
                         .startObject("nl").field("type","integer").endObject()
-                        .startObject("bnn").field("type","keyword").endObject()
-                        .startObject("bl").field("type","integer").endObject()
-                        .startObject("brid").field("type","long").endObject()
 
                         .endObject()
                         .endObject();
