@@ -63,6 +63,7 @@ public class DouyuGiveGiftsMsgHandler implements IMessageHandler<DouyuMessage> {
 //            //设置过期时间
 //            redisManager.expireAt(U_GIFT_RANK,getExpireUnixTime());
 //        }
+        //test
         return true;
     }
 
