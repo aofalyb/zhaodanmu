@@ -4,6 +4,7 @@ import com.zhaodanmu.persistence.api.Model;
 import com.zhaodanmu.persistence.api.TypeNameEnmu;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class SimpinleUserModel implements Model {
 
@@ -94,5 +95,23 @@ public class SimpinleUserModel implements Model {
     @Override
     public String pK() {
         return String.valueOf(uid);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimpinleUserModel that = (SimpinleUserModel) o;
+        return level == that.level &&
+                nl == that.nl &&
+                Objects.equals(uid, that.uid) &&
+                Objects.equals(rid, that.rid) &&
+                Objects.equals(nn, that.nn) &&
+                Objects.equals(ic, that.ic);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uid, rid, level, nn, ic, nl);
     }
 }

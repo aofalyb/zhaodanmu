@@ -20,7 +20,7 @@ public class Main {
 
         RedisServer.connect(CC.redisHost,CC.redisPort);
 
-        //PropGiftConfig.init();
+        PropGiftConfig.init();
 
         DouyuCrawlerServer douyuCrawlerServer = new DouyuCrawlerServer(esClient);
         douyuCrawlerServer.sync();

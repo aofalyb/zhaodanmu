@@ -37,32 +37,32 @@ public class DouyuGiveGiftsMsgHandler implements IMessageHandler<DouyuMessage> {
         //写入持久化
         persistenceService.bufferedInsert(giveGifts);
 
-//        String giftId = String.valueOf(giveGifts.getGfid());
-//        String rid = String.valueOf(giveGifts.getRid());
-//        //礼物贡献值
-//        int devote = 0;
-//        PropGiftInfo propGift = PropGiftConfig.getPropGift(giftId);
-//        if(propGift == null) {
-//            DouyuCrawlerClient douyuCrawlerClient = ClientHolder.get(rid);
-//            RoomDetail.GiftEntity newGift = douyuCrawlerClient.getRoomDetail().getGiftInfo(giveGifts.getGfid());
-//            if(newGift == null) {
-//                Log.sysLogger.error("un known gift id: {}",giftId);
-//                return true;
-//            }
-//            devote = newGift.getGx();
-//        } else {
-//            devote = propGift.getDevote();
-//        }
+        String giftId = String.valueOf(giveGifts.getGfid());
+        String rid = String.valueOf(giveGifts.getRid());
+        //礼物贡献值
+        int devote = 0;
+        PropGiftInfo propGift = PropGiftConfig.getPropGift(giftId);
+        if(propGift == null) {
+            DouyuCrawlerClient douyuCrawlerClient = ClientHolder.get(rid);
+            RoomDetail.GiftEntity newGift = douyuCrawlerClient.getRoomDetail().getGiftInfo(giveGifts.getGfid());
+            if(newGift == null) {
+                Log.sysLogger.error("un known gift id: {},rid: {}",giftId,rid);
+                return true;
+            }
+            devote = newGift.getGx();
+        } else {
+            devote = propGift.getDevote();
+        }
 
-//        if(redisManager.exsit(U_GIFT_RANK)) {
-//            //redis 房间弹幕数率
-//            redisManager.zIncr(U_GIFT_RANK ,devote, String.valueOf(giveGifts.getUid()));
-//        } else {
-//            //redis 房间弹幕数率
-//            redisManager.zIncr(U_GIFT_RANK ,devote, String.valueOf(giveGifts.getUid()));
-//            //设置过期时间
-//            redisManager.expireAt(U_GIFT_RANK,getExpireUnixTime());
-//        }
+        if(redisManager.exsit(U_GIFT_RANK)) {
+            //个人礼物排行
+            redisManager.zIncr(U_GIFT_RANK ,devote, String.valueOf(giveGifts.getUid()));
+        } else {
+            //房间礼物排行
+            redisManager.zIncr(U_GIFT_RANK ,devote, String.valueOf(giveGifts.getUid()));
+            //设置过期时间
+            redisManager.expireAt(U_GIFT_RANK,getExpireUnixTime());
+        }
         return true;
     }
 

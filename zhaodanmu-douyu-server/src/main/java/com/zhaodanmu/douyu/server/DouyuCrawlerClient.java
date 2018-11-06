@@ -76,7 +76,7 @@ public class DouyuCrawlerClient extends NettyClient {
         // 赠送礼物消息(dgb)
         messageHandlerDispatcher.register("dgb",new DouyuGiveGiftsMsgHandler(persistenceService));
         //用户进房消息(uenter)
-        messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler());
+        messageHandlerDispatcher.register("uenter",new DouyuUEnterMsgHandler(persistenceService));
         // 赠送酬劳消息(bc_buy_deserve)
         messageHandlerDispatcher.register("bc_buy_deserve",new DouyuDeserveMsgHandler(persistenceService));
         //被禁言消息（newblackres）

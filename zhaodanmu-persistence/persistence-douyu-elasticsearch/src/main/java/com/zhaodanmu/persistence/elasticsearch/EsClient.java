@@ -22,6 +22,7 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -427,14 +428,18 @@ public class EsClient implements PersistenceService {
 
     @Override
     public PageInfo search(Search search) {
-
-        QueryBuilder queryBuilder = QueryBuilders.termQuery(search.getKey(),search.getKeyWord());
+        QueryBuilder queryBuilder = null;
+       if(search.getKey() != null) {
+            queryBuilder = QueryBuilders.termQuery(search.getKey(),search.getKeyWord());
+       } else {
+           queryBuilder = QueryBuilders.matchAllQuery();
+       }
         SearchResponse response = client.prepareSearch(search.getIndex())
                 .setTypes(search.getType())
                 .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                 .setQuery(queryBuilder)
                 .addSort("t", SortOrder.DESC)
-                .setFrom(search.from()).setSize(10)
+                .setFrom(search.from()).setSize(15)
                 .execute()
                 .actionGet();
         SearchHits hits = response.getHits();

@@ -10,17 +10,17 @@ import java.util.concurrent.TimeUnit;
  * 素质广场~
  * Created by Administrator on 2018/11/4.
  */
-public class ActiveUserEventCache {
+public class JVMLruCache {
 
-    private static Cache<Long, UserEventCache> cacher;
+    private static Cache<Object, Object> cacher;
 
-    private static ActiveUserEventCache eventCache = new ActiveUserEventCache();
+    private static JVMLruCache eventCache = new JVMLruCache();
 
-    public static ActiveUserEventCache getInstance() {
+    public static JVMLruCache getInstance() {
         return eventCache;
     }
 
-    private ActiveUserEventCache() {
+    private JVMLruCache() {
         cacher = CacheBuilder.newBuilder()
                 .expireAfterAccess(3 * 60, TimeUnit.SECONDS)
                 .initialCapacity(50 * 10000)
@@ -28,14 +28,14 @@ public class ActiveUserEventCache {
                 .build();
     }
 
-    public void cache(long uid,UserEventCache userEventCache) {
-        cacher.put(uid,userEventCache);
-        Log.sysLogger.debug("lru cache: {}",userEventCache);
+    public void cache(LruCache lruCache) {
+        cacher.put(lruCache.getKey(), lruCache.getCacheData());
+        Log.sysLogger.debug("lru cache: {}", lruCache.getCacheData());
     }
 
 
-    public UserEventCache get(long uid) {
-        return cacher.getIfPresent(uid);
+    public Object get(Object key) {
+        return cacher.getIfPresent(key);
     }
 
 
