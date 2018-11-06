@@ -22,15 +22,9 @@ public class NewBlackMsgHandler implements IMessageHandler<DouyuMessage> {
     public boolean handle(Connection connection, DouyuMessage message) {
         Map<String, String> attributes = message.getData();
 
-        NewBlackresModel newBlackresModel = null;
-        try {
-            newBlackresModel = JSON.parseObject(JSON.toJSONString(attributes), NewBlackresModel.class);
-        } catch (Exception e) {
-            Log.sysLogger.error("json serialize: {} ",attributes,e);
-            return false;
-        }
+        NewBlackresModel newBlackresModel = JSON.parseObject(JSON.toJSONString(attributes), NewBlackresModel.class);
         //写入持久化
         persistenceService.bufferedInsert(newBlackresModel);
-        return false;
+        return true;
     }
 }

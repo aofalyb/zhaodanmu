@@ -147,6 +147,30 @@ public class EsClient implements PersistenceService {
 
         }
 
+        indexExsit = client
+                .admin()
+                .indices()
+                .prepareExists(TypeNameEnmu.gift.name())
+                .execute()
+                .actionGet();
+
+        if(!indexExsit.isExists()) {
+            //创建
+            Log.sysLogger.info("es index:{} is not exists, prepare create!",TypeNameEnmu.gift.name());
+            CreateIndexResponse indexCreate = client
+                    .admin()
+                    .indices()
+                    .prepareCreate(TypeNameEnmu.gift.name())
+                    .setSettings(Settings.builder().put("index.number_of_replicas",0).build())
+                    .execute()
+                    .actionGet();
+            if(!indexCreate.isAcknowledged()) {
+                Log.sysLogger.error("create es index: {} FAILED!.",TypeNameEnmu.gift.name());
+                throw new ESException("create es index: " + TypeNameEnmu.gift.name() + "failed");
+            }
+            Log.sysLogger.info("create es index: {} SUCCESS!",TypeNameEnmu.gift.name());
+        }
+
         //danmu
         //索引字段
         TypesExistsResponse typeExist = client
@@ -225,7 +249,33 @@ public class EsClient implements PersistenceService {
             Log.sysLogger.info("create index type:{} SUCCESS!", TypeNameEnmu.user.name());
         }
 
-        Log.sysLogger.info("connect es client success es.host: {}",host + ":" + port);
+
+        typeExist = client
+                .admin()
+                .indices()
+                .prepareTypesExists(TypeNameEnmu.gift.name())
+                .setTypes(TypeNameEnmu.gift.name())
+                .execute()
+                .actionGet();
+
+        if(!typeExist.isExists()) {
+            Log.sysLogger.info("index type:{} is not exists, prepare create!", TypeNameEnmu.gift.name());
+            PutMappingRequest putMappingRequest = Requests
+                    .putMappingRequest(TypeNameEnmu.gift.name())
+                    .type(TypeNameEnmu.gift.name())
+                    .source(getMapping(TypeNameEnmu.gift));
+            PutMappingResponse typeCreate = client.admin()
+                    .indices()
+                    .putMapping(putMappingRequest)
+                    .actionGet();
+            if(!typeCreate.isAcknowledged()){
+                Log.sysLogger.error("create index type:{} FAILED!", TypeNameEnmu.gift.name());
+                throw new ESException("create index type: " + TypeNameEnmu.gift.name() + "failed");
+            }
+            Log.sysLogger.info("create index type:{} SUCCESS!", TypeNameEnmu.gift.name());
+        }
+
+        Log.sysLogger.info("connect es client success es.host: [{}]",host + ":" + port);
         start = true;
     }
 
@@ -285,6 +335,25 @@ public class EsClient implements PersistenceService {
                         .startObject("ic").field("type","keyword").endObject()
                         .startObject("nl").field("type","integer").endObject()
 
+                        .endObject()
+                        .endObject();
+
+            } catch (IOException e) {
+            }
+        }
+
+
+        if(typeName.equals(TypeNameEnmu.gift)) {
+            try {
+                return XContentFactory.jsonBuilder()
+                        .startObject()
+                        .startObject("properties")
+                        .startObject("t").field("type","date").endObject()
+                        .startObject("rid").field("type","long").endObject()
+                        .startObject("uid").field("type","long").endObject()
+                        .startObject("hits").field("type","integer").endObject()
+                        .startObject("gfid").field("type","long").endObject()
+                        .startObject("gfcnt").field("type","integer").endObject()
                         .endObject()
                         .endObject();
 

@@ -1,6 +1,9 @@
 package com.zhaodanmu.persistence.elasticsearch.model;
 
 import com.zhaodanmu.persistence.api.Model;
+import com.zhaodanmu.persistence.api.TypeNameEnmu;
+
+import java.util.Date;
 
 /**
  * Created by Administrator on 2018/11/4.
@@ -16,6 +19,8 @@ public class GiveGiftModel implements Model {
     private long uid;
 
     private long rid;
+
+    private Date t = new Date();
 
 
 
@@ -59,9 +64,17 @@ public class GiveGiftModel implements Model {
         this.rid = rid;
     }
 
+    public Date getT() {
+        return t;
+    }
+
+    public void setT(Date t) {
+        this.t = t;
+    }
+
     @Override
     public String type() {
-        return null;
+        return TypeNameEnmu.gift.name();
     }
 
     @Override

@@ -25,7 +25,7 @@ public class DouyuCrawlerServer {
         String[] roomsArray = CC.rooms;
         for (int i = 0; i < roomsArray.length; i++) {
             DouyuCrawlerClient douyuCrawlerClient = new DouyuCrawlerClient(roomsArray[i],persistenceService);
-            douyuCrawlerClient.setRoomDetail(checkExist(roomsArray[i]));
+            //douyuCrawlerClient.setRoomDetail(checkExist(roomsArray[i]));
             douyuCrawlerClient.sync();
         }
 
