@@ -7,9 +7,7 @@ import com.zhaodanmu.core.netty.NettyRuntimeException;
 import com.zhaodanmu.core.netty.NettyServer;
 import com.zhaodanmu.core.redis.RedisServer;
 import com.zhaodanmu.douyu.server.netty.DouyuHttpRespHandler;
-import com.zhaodanmu.douyu.server.netty.controller.NewBlackController;
-import com.zhaodanmu.douyu.server.netty.controller.SearchController;
-import com.zhaodanmu.douyu.server.netty.controller.UserController;
+import com.zhaodanmu.douyu.server.netty.controller.*;
 import com.zhaodanmu.persistence.api.PersistenceService;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.HttpRequestDecoder;
@@ -35,6 +33,8 @@ public class DouyuHttpServer extends NettyServer {
         controllerDispatcher.register(new SearchController(persistenceService));
         controllerDispatcher.register(new UserController(persistenceService));
         controllerDispatcher.register(new NewBlackController(persistenceService));
+        controllerDispatcher.register(new GiftSearchController(persistenceService));
+        controllerDispatcher.register(new RoomListController());
     }
 
     @Override

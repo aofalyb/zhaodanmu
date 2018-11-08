@@ -47,7 +47,7 @@ public class DouyuChatMsgHandler implements IMessageHandler<DouyuMessage> {
             eventCache.cache(new LruCache() {
                 @Override
                 public Object getKey() {
-                    return "uid:" + simpinleUserModel.getUid();
+                    return lruCacheKey;
                 }
 
                 @Override

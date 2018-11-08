@@ -14,7 +14,7 @@ public class RoomListController implements Controller {
 
     @Override
     public String getRequestMapping() {
-        return "room/list";
+        return "douyu/room/list";
     }
 
     @Override
