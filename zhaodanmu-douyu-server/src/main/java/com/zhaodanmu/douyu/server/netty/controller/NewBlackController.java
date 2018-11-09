@@ -8,6 +8,9 @@ import com.zhaodanmu.persistence.api.PersistenceService;
 import com.zhaodanmu.persistence.api.Search;
 import com.zhaodanmu.persistence.api.TypeNameEnmu;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 public class NewBlackController implements Controller {
 
     private PersistenceService persistenceService;
@@ -24,6 +27,13 @@ public class NewBlackController implements Controller {
     @Override
     public Object handle(URI uri, String body) {
         String from = uri.getParameter("from");
+        String key = uri.getParameter("key");
+        String keyWord;
+        try {
+            keyWord = URLDecoder.decode(uri.getParameter("keyWord"),"utf-8");
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
         PageInfo pageInfo = persistenceService.search(new Search() {
             @Override
             public int from() {
@@ -46,12 +56,12 @@ public class NewBlackController implements Controller {
 
             @Override
             public String getKey() {
-                return null;
+                return key;
             }
 
             @Override
             public String getKeyWord() {
-                return null;
+                return keyWord;
             }
         });
 
