@@ -28,12 +28,16 @@ public class NewBlackController implements Controller {
     public Object handle(URI uri, String body) {
         String from = uri.getParameter("from");
         String key = uri.getParameter("key");
-        String keyWord;
-        try {
-            keyWord = URLDecoder.decode(uri.getParameter("keyWord"),"utf-8");
-        } catch (UnsupportedEncodingException e) {
-            return null;
+        String keyWord = uri.getParameter("keyWord");
+        if(keyWord != null) {
+            try {
+                keyWord = URLDecoder.decode(keyWord,"utf-8");
+            } catch (UnsupportedEncodingException e) {
+                return null;
+            }
         }
+
+        String finalKeyWord = keyWord;
         PageInfo pageInfo = persistenceService.search(new Search() {
             @Override
             public int from() {
@@ -61,7 +65,7 @@ public class NewBlackController implements Controller {
 
             @Override
             public String getKeyWord() {
-                return keyWord;
+                return finalKeyWord;
             }
         });
 
