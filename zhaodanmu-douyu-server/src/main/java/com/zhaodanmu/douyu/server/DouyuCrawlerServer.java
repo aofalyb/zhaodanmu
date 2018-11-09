@@ -5,8 +5,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.zhaodanmu.common.exception.HttpException;
 import com.zhaodanmu.common.utils.HttpUtils;
 import com.zhaodanmu.common.utils.Log;
-import com.zhaodanmu.core.redis.RedisServer;
+import com.zhaodanmu.douyu.server.util.ClientHolder;
+import com.zhaodanmu.douyu.server.util.ThreadUtils;
 import com.zhaodanmu.persistence.api.PersistenceService;
+import org.apache.lucene.util.NamedThreadFactory;
+
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -28,11 +33,26 @@ public class DouyuCrawlerServer {
             douyuCrawlerClient.setRoomDetail(checkExist(roomsArray[i]));
             douyuCrawlerClient.sync();
         }
+        ThreadUtils.getScheduledThread().scheduleWithFixedDelay(() -> {
+            for (String roomId: roomsArray
+                 ) {
+                DouyuCrawlerClient douyuCrawlerClient = ClientHolder.get(roomId);
+                if(douyuCrawlerClient != null) {
+                    try {
+                        douyuCrawlerClient.setRoomDetail(checkExist(roomId));
+                    } catch (Exception e) {
+                        Log.sysLogger.error("timer-room-update failed",e);
+                    }
+                }
+                Log.sysLogger.info("success update douyu room detail,room id: {}.",roomId);
+            }
+        },5 * 60,5 * 60, TimeUnit.SECONDS);
 
     }
 
 
     private RoomDetail checkExist(String roomId) {
+
         final String json;
         final String url = "http://open.douyucdn.cn/api/RoomApi/room/" + roomId;
         try {
