@@ -35,6 +35,7 @@ public class DouyuHttpServer extends NettyServer {
         controllerDispatcher.register(new NewBlackController(persistenceService));
         controllerDispatcher.register(new GiftSearchController(persistenceService));
         controllerDispatcher.register(new RoomListController());
+        controllerDispatcher.register(new RecentlyMessageController());
     }
 
     @Override

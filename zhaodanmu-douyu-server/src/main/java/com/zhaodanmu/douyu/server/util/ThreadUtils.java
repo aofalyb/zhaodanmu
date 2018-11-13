@@ -1,6 +1,8 @@
 package com.zhaodanmu.douyu.server.util;
 
-import org.apache.lucene.util.NamedThreadFactory;
+
+
+import com.zhaodanmu.common.utils.NamedThreadFactory;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -12,8 +14,13 @@ public class ThreadUtils {
 
     private static ScheduledThreadPoolExecutor timerUpdateRoomThread = new ScheduledThreadPoolExecutor(1, new NamedThreadFactory("timer-room-update"));
 
+    private static NamedThreadFactory namedThreadFactory = new NamedThreadFactory("util-");
 
     public static ScheduledThreadPoolExecutor getScheduledThread() {
         return timerUpdateRoomThread;
+    }
+
+    public static Thread newThread(String name,Runnable runnable) {
+        return namedThreadFactory.newThread(name,runnable);
     }
 }
