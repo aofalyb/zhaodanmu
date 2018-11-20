@@ -43,12 +43,12 @@ public class GiftSearchController implements Controller {
         PageInfo search = persistenceService.search(new Search() {
             @Override
             public String getType() {
-                return TypeNameEnmu.danmu.name();
+                return TypeNameEnmu.gift.name();
             }
 
             @Override
             public String getIndex() {
-                return TypeNameEnmu.danmu.name();
+                return TypeNameEnmu.gift.name();
             }
 
             @Override
@@ -70,7 +70,7 @@ public class GiftSearchController implements Controller {
                 return fromNum;
             }
         });
-        return null;
+        return search;
     }
 
 }

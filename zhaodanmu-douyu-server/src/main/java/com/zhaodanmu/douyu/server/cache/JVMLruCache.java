@@ -22,7 +22,7 @@ public class JVMLruCache {
 
     private JVMLruCache() {
         cacher = CacheBuilder.newBuilder()
-                .expireAfterAccess(3 * 60, TimeUnit.SECONDS)
+                .expireAfterAccess(6 * 60 * 60, TimeUnit.SECONDS)
                 .initialCapacity(50 * 10000)
                 .maximumSize(100 * 10000)
                 .build();
