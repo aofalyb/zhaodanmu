@@ -10,12 +10,14 @@ import com.zhaodanmu.douyu.server.DouyuCrawlerClient;
 import com.zhaodanmu.douyu.server.PropGiftConfig;
 import com.zhaodanmu.douyu.server.PropGiftInfo;
 import com.zhaodanmu.douyu.server.RoomDetail;
+import com.zhaodanmu.douyu.server.cache.SimpleCache;
 import com.zhaodanmu.douyu.server.message.DouyuMessage;
 import com.zhaodanmu.douyu.server.util.ClientHolder;
 import com.zhaodanmu.persistence.api.PersistenceService;
 import com.zhaodanmu.persistence.elasticsearch.model.GiveGiftModel;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -42,6 +44,7 @@ public class DouyuGiveGiftsMsgHandler implements IMessageHandler<DouyuMessage> {
         //礼物贡献值
         int devote = 0;
         PropGiftInfo propGift = PropGiftConfig.getPropGift(giftId);
+        Map giftCache = new HashMap();
         if(propGift == null) {
             DouyuCrawlerClient douyuCrawlerClient = ClientHolder.get(rid);
             RoomDetail.GiftEntity newGift = douyuCrawlerClient.getRoomDetail().getGiftInfo(giveGifts.getGfid());
@@ -50,9 +53,19 @@ public class DouyuGiveGiftsMsgHandler implements IMessageHandler<DouyuMessage> {
                 return true;
             }
             devote = newGift.getGx();
+            giftCache.put("devote",devote);
+            giftCache.put("name",newGift.getName());
+            giftCache.put("himg",newGift.getHimg());
+            SimpleCache.store("gift:" + giftId,giftCache);
         } else {
             devote = propGift.getDevote();
+            giftCache.put("devote",devote);
+            giftCache.put("name",propGift.getName());
+            giftCache.put("himg",propGift.getHimg());
+            SimpleCache.store("gift:" + giftId,giftCache);
         }
+
+
 
         if(redisManager.exsit(U_GIFT_RANK)) {
             //个人礼物排行

@@ -7,8 +7,10 @@ import com.alibaba.fastjson.TypeReference;
 import com.zhaodanmu.common.exception.HttpException;
 import com.zhaodanmu.common.utils.HttpUtils;
 import com.zhaodanmu.common.utils.Log;
+import com.zhaodanmu.douyu.server.cache.SimpleCache;
 import com.zhaodanmu.douyu.server.util.ThreadUtils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +50,19 @@ public class PropGiftConfig {
         String originJson = dyConfigCallback.substring(startIndex + 1, endIndex);
         String dataJson = JSON.parseObject(originJson).getString("data");
         giftInfoMap = JSON.parseObject(dataJson, new TypeReference<Map<String, PropGiftInfo>>(){});
-        Log.sysLogger.info("get prop_gift_config SUCCESS,gifts len:{}",giftInfoMap.values().size());
+
+        Collection<PropGiftInfo> propGiftInfos = giftInfoMap.values();
+
+        for (PropGiftInfo giftInfo: propGiftInfos ) {
+            Map giftCache = new HashMap();
+            int devote = giftInfo.getDevote();
+            giftCache.put("devote",devote);
+            giftCache.put("name",giftInfo.getName());
+            giftCache.put("himg",giftInfo.getHimg());
+            SimpleCache.store("gift:" + giftInfo,giftCache);
+        }
+
+        Log.sysLogger.info("get prop_gift_config SUCCESS,gifts len:{}", propGiftInfos.size());
     }
 
 

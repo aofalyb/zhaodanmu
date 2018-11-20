@@ -5,11 +5,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.zhaodanmu.common.exception.HttpException;
 import com.zhaodanmu.common.utils.HttpUtils;
 import com.zhaodanmu.common.utils.Log;
+import com.zhaodanmu.douyu.server.cache.SimpleCache;
 import com.zhaodanmu.douyu.server.util.ClientHolder;
 import com.zhaodanmu.douyu.server.util.ThreadUtils;
 import com.zhaodanmu.persistence.api.PersistenceService;
 import org.apache.lucene.util.NamedThreadFactory;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -68,7 +72,18 @@ public class DouyuCrawlerServer {
             throw new HttpException("resp error,message:" + resp.getString("data"));
         }
         String data = resp.getString("data");
+        RoomDetail roomDetail = JSON.parseObject(data, RoomDetail.class);
+        List<RoomDetail.GiftEntity> roomDetailGifts = roomDetail.getGift();
 
-        return JSON.parseObject(data, RoomDetail.class);
+        for (RoomDetail.GiftEntity giftInfo:roomDetailGifts) {
+            Map giftCache = new HashMap();
+            int devote = giftInfo.getGx();
+            giftCache.put("devote",devote);
+            giftCache.put("name",giftInfo.getName());
+            giftCache.put("himg",giftInfo.getHimg());
+            SimpleCache.store("gift:" + giftInfo,giftCache);
+        }
+
+        return roomDetail;
     }
 }

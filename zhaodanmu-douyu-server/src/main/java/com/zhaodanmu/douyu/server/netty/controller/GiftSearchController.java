@@ -3,6 +3,7 @@ package com.zhaodanmu.douyu.server.netty.controller;
 import com.zhaodanmu.common.PageInfo;
 import com.zhaodanmu.common.URI;
 import com.zhaodanmu.core.controller.Controller;
+import com.zhaodanmu.douyu.server.cache.SimpleCache;
 import com.zhaodanmu.persistence.api.ESException;
 import com.zhaodanmu.persistence.api.PersistenceService;
 import com.zhaodanmu.persistence.api.Search;
@@ -10,6 +11,10 @@ import com.zhaodanmu.persistence.api.TypeNameEnmu;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by Administrator on 2018/11/8.
@@ -70,6 +75,17 @@ public class GiftSearchController implements Controller {
                 return fromNum;
             }
         });
+
+        List<Map> dataList = search.getList();
+        for (Map map: dataList) {
+
+            Object gfid = map.get("gfid");
+            HashMap giftMap = (HashMap) SimpleCache.get("gift:" + gfid);
+            Object clone = giftMap.clone();
+
+            map.put("ginf",clone);
+        }
+
         return search;
     }
 
