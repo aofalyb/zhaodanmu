@@ -55,9 +55,9 @@ public class MessageHandlerDispatcher<T extends Message> {
         boolean success = handler.handle(connection, decodeMessage);
         long _e = System.currentTimeMillis();
 
-        Log.sysLogger.debug("handle cost time: {} ms,thread:{}",(_e - _s),Thread.currentThread().getName());
+//        Log.sysLogger.debug("handle cost time: {} ms,thread:{}",(_e - _s),Thread.currentThread().getName());
 
-        return success;
+        return true;
     }
 
     /**

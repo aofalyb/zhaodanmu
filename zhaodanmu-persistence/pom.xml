@@ -15,9 +15,14 @@
     <artifactId>zhaodanmu-persistence</artifactId>
     <packaging>pom</packaging>
 
+    <properties>
+        <elasticsearch.version>6.7.1</elasticsearch.version>
+    </properties>
+
     <modules>
         <module>persistence-api</module>
-        <module>persistence-douyu-elasticsearch</module>
+        <module>persistence-elasticsearch-cli</module>
+        <module>persistence-elasticsearch-server</module>
     </modules>
 
     <dependencies>
@@ -25,7 +30,6 @@
         <dependency>
             <groupId>com.zhaodanmu</groupId>
             <artifactId>zhaodanmu-cmomon</artifactId>
-            <version>1.0.0</version>
         </dependency>
     </dependencies>
 
@@ -34,8 +38,15 @@
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>transport</artifactId>
-                <version>6.4.0</version>
+                <version>${elasticsearch.version}</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch -->
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 </project>

@@ -26,6 +26,9 @@ public class DouyuMessage extends BaseMessage<Map<String,String>> {
             try {
                 originMsg = new String(douyuPacketBody,"utf-8");
                 attributes = DouyuSerializeUtil.unSerialize(originMsg);
+               if("chatmsg".equalsIgnoreCase(attributes.get("type"))) {
+                   System.out.println(String.format("[%s] | %s : %s",attributes.get("rid"),attributes.get("nn"),attributes.get("txt")));
+               }
             } catch (Exception e) {
                 Log.defLogger.error(e);
             }
