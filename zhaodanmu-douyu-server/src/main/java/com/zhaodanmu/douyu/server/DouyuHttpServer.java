@@ -1,11 +1,10 @@
 package com.zhaodanmu.douyu.server;
 
+import com.zhaodanmu.common.Listener;
 import com.zhaodanmu.common.utils.Log;
-import com.zhaodanmu.core.common.Listener;
 import com.zhaodanmu.core.dispatcher.ControllerDispatcher;
 import com.zhaodanmu.core.netty.NettyRuntimeException;
 import com.zhaodanmu.core.netty.NettyServer;
-import com.zhaodanmu.core.redis.RedisServer;
 import com.zhaodanmu.douyu.server.netty.DouyuHttpRespHandler;
 import com.zhaodanmu.douyu.server.netty.controller.*;
 import com.zhaodanmu.persistence.api.PersistenceService;

@@ -11,5 +11,13 @@
 
     <artifactId>persistence-api</artifactId>
     <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.zhaodanmu</groupId>
+            <artifactId>zhaodanmu-cmomon</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
     
 </project>

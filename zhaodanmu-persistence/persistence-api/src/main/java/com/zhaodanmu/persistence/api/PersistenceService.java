@@ -9,17 +9,12 @@ import java.util.List;
  */
 public interface PersistenceService {
 
-    void init(Object...args);
-
-    boolean isStart();
-
     void insert(Model model);
 
-    void bufferedInsert(Model model);
+    void bufferedInsert(Object model);
 
-    void batchInsert(boolean async,List<Model> models);
+    void batchInsert(boolean async,List<Object> models);
 
     PageInfo search(Search search);
 
-    void shutdown(Object...args);
 }

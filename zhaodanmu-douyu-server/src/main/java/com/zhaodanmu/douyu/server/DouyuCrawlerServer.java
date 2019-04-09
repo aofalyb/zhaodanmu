@@ -9,12 +9,10 @@ import com.zhaodanmu.douyu.server.cache.SimpleCache;
 import com.zhaodanmu.douyu.server.util.ClientHolder;
 import com.zhaodanmu.douyu.server.util.ThreadUtils;
 import com.zhaodanmu.persistence.api.PersistenceService;
-import org.apache.lucene.util.NamedThreadFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -34,7 +32,7 @@ public class DouyuCrawlerServer {
         String[] roomsArray = CC.rooms;
         for (int i = 0; i < roomsArray.length; i++) {
             DouyuCrawlerClient douyuCrawlerClient = new DouyuCrawlerClient(roomsArray[i],persistenceService);
-            douyuCrawlerClient.setRoomDetail(checkExist(roomsArray[i]));
+//            douyuCrawlerClient.setRoomDetail(checkExist(roomsArray[i]));
             douyuCrawlerClient.sync();
         }
         ThreadUtils.getScheduledThread().scheduleWithFixedDelay(() -> {

@@ -2,7 +2,6 @@ package com.zhaodanmu.douyu.server;
 
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.zhaodanmu.common.exception.HttpException;
 import com.zhaodanmu.common.utils.HttpUtils;
@@ -25,7 +24,7 @@ public class PropGiftConfig {
     private static final String URL = "http://webconf.douyucdn.cn/resource/common/prop_gift_list/prop_gift_config.json";
 
     public static void init() {
-        Log.sysLogger.info("prepare to get prop_gift_config from douyu url: {}",URL);
+        Log.sysLogger.info("Getting gift_conf -> {}",URL);
         getGiftConfigFromDouyu();
         ThreadUtils.getScheduledThread().scheduleWithFixedDelay(() -> {
             try {

@@ -1,4 +1,4 @@
-package com.zhaodanmu.core.common;
+package com.zhaodanmu.common;
 
 public interface Listener {
 
