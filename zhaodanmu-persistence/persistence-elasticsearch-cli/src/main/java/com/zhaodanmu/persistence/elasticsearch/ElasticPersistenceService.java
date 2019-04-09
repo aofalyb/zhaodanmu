@@ -54,7 +54,7 @@ public class ElasticPersistenceService implements PersistenceService {
      * 带缓冲地同步写入es
      */
     @Override
-    public void bufferedInsert(Object model) {
+    public synchronized void bufferedInsert(Object model) {
         bufferedModelQueue.add(model);
         if(bufferedModelQueue.size() > modelBufferSize && elasticsearchClient.isRunning()) {
             List<Object> models = new LinkedList<>();
