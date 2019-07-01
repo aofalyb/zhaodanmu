@@ -17,7 +17,7 @@ public class DouyuDefaultMsgHandler implements IMessageHandler<DouyuMessage> {
 
     @Override
     public boolean handle(Connection connection, DouyuMessage message) {
-        persistenceService.bufferedInsert(message.getData());
+//        persistenceService.bufferedInsert(message.getData());
         return false;
     }
 }

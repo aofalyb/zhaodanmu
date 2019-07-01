@@ -12,7 +12,7 @@ public class Main {
         System.setProperty("io.netty.noUnsafe","false");
 //
         ElasticsearchClient elasticsearchClient = new ElasticsearchClient("127.0.0.1",9301);
-        elasticsearchClient.start();
+//        elasticsearchClient.start();
         PersistenceService persistenceService = new ElasticPersistenceService(elasticsearchClient);
 //
 //        RedisServer.connect(CC.redisHost,CC.redisPort);
