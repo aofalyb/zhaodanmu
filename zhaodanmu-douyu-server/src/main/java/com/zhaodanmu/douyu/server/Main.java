@@ -15,15 +15,9 @@ public class Main {
 //        elasticsearchClient.start();
         PersistenceService persistenceService = new ElasticPersistenceService(elasticsearchClient);
 //
-//        RedisServer.connect(CC.redisHost,CC.redisPort);
-
-//        PropGiftConfig.init();
 
         DouyuCrawlerServer douyuCrawlerServer = new DouyuCrawlerServer(persistenceService);
         douyuCrawlerServer.sync();
-
-        DouyuHttpServer douyuServer = new DouyuHttpServer(persistenceService);
-        douyuServer.sync();
         Log.sysLogger.info("======================================");
         Log.sysLogger.info("======================================");
         Log.sysLogger.info("========== SERVER START SUCCESS ======");
