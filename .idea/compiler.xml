@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="zhaodanmu-core" />
+        <module name="zhaodanmu-douyu-server" />
+        <module name="zhaodanmu-spring-app" />
+        <module name="persistence-douyu-elasticsearch" />
+        <module name="zhaodanmu-cmomon" />
+        <module name="persistence-api" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="persistence-api" target="1.8" />
+      <module name="persistence-douyu-elasticsearch" target="7" />
+      <module name="zhaodanmu" target="1.8" />
+      <module name="zhaodanmu-cmomon" target="1.8" />
+      <module name="zhaodanmu-core" target="8" />
+      <module name="zhaodanmu-douyu-server" target="8" />
+      <module name="zhaodanmu-persistence" target="1.8" />
+      <module name="zhaodanmu-spring-app" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

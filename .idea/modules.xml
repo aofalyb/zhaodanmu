@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/zhaodanmu-persistence/persistence-api/persistence-api.iml" filepath="$PROJECT_DIR$/zhaodanmu-persistence/persistence-api/persistence-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zhaodanmu-persistence/persistence-douyu-elasticsearch/persistence-douyu-elasticsearch.iml" filepath="$PROJECT_DIR$/zhaodanmu-persistence/persistence-douyu-elasticsearch/persistence-douyu-elasticsearch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/zhaodanmu.iml" filepath="$PROJECT_DIR$/.idea/zhaodanmu.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zhaodanmu-cmomon/zhaodanmu-cmomon.iml" filepath="$PROJECT_DIR$/zhaodanmu-cmomon/zhaodanmu-cmomon.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zhaodanmu-core/zhaodanmu-core.iml" filepath="$PROJECT_DIR$/zhaodanmu-core/zhaodanmu-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zhaodanmu-douyu-server/zhaodanmu-douyu-server.iml" filepath="$PROJECT_DIR$/zhaodanmu-douyu-server/zhaodanmu-douyu-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zhaodanmu-persistence/zhaodanmu-persistence.iml" filepath="$PROJECT_DIR$/zhaodanmu-persistence/zhaodanmu-persistence.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zhaodanmu-spring-app/zhaodanmu-spring-app.iml" filepath="$PROJECT_DIR$/zhaodanmu-spring-app/zhaodanmu-spring-app.iml" />
+    </modules>
+  </component>
+</project>
